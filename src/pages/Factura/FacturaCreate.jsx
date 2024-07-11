@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import { Button } from '@nextui-org/button'
 import { Avatar } from '@nextui-org/react'
@@ -6,18 +6,79 @@ import { Divider } from '@nextui-org/divider'
 import { Card, CardBody } from '@nextui-org/react'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Input } from '@nextui-org/input'
-import { Formik, FieldArray } from 'formik'
+import { Formik, FieldArray, useFormikContext } from 'formik'
 import { apiUrl, condicionesVenta, situacionesTributarias, tasas, toastStyle } from '../../config/constants'
 import CustomBreadcrumbs from '../../components/CustomBreadcrumbs'
 import axiosInstance from '../../services/axiosInstance'
 import axios from 'axios'
 import * as Yup from 'yup'
 import UserIcon from '../../icons/UserIcon'
-import { calcularImpuesto, calcularPrecio, formatNumber } from '../../utils/facturacion'
+import { calcularImpuesto, calcularPrecio, calcularTotalGeneral, calcularTotalGeneralIva, formatNumber } from '../../utils/facturacion'
 import { PlusIcon } from '../../icons/PlusIcon'
 import { MinusIcon } from '../../icons/MinusIcon'
-import FacturaInputTotalGeneral from './components/FacturaInputTotalGeneral'
-import FacturaInputTotalGeneralIva from './components/FacturaInputTotalGeneralIva'
+import PropTypes from 'prop-types'
+
+function FacturaInputTotalGeneral({ label, labelPlacement, name, value, variant, className, readOnly }) {
+
+  const {
+    values: { items },
+    setFieldValue,
+  } = useFormikContext()
+
+  useEffect(() => {
+    const totalGeneral = calcularTotalGeneral(items)
+    setFieldValue(name, totalGeneral)
+  }, [items, setFieldValue, name])
+
+  return (
+    <>
+      <Input
+        value={formatNumber(value)}
+        {...{ label, labelPlacement, name, variant, className, readOnly }}
+      />
+    </>
+  )
+}
+FacturaInputTotalGeneral.propTypes = {
+  label: PropTypes.string,
+  labelPlacement: PropTypes.string,
+  name: PropTypes.string,
+  value: PropTypes.any,
+  variant: PropTypes.string,
+  className: PropTypes.string,
+  readOnly: PropTypes.bool,
+}
+
+function FacturaInputTotalGeneralIva({ label, labelPlacement, name, value, variant, className, readOnly }) {
+
+  const {
+    values: { items },
+    setFieldValue,
+  } = useFormikContext()
+
+  useEffect(() => {
+    const totalGeneral = calcularTotalGeneralIva(items)
+    setFieldValue(name, totalGeneral)
+  }, [items, setFieldValue, name])
+
+  return (
+    <>
+      <Input
+        value={formatNumber(value)}
+        {...{ label, labelPlacement, name, variant, className, readOnly }}
+      />
+    </>
+  )
+}
+FacturaInputTotalGeneralIva.propTypes = {
+  label: PropTypes.string,
+  labelPlacement: PropTypes.string,
+  name: PropTypes.string,
+  value: PropTypes.any,
+  variant: PropTypes.string,
+  className: PropTypes.string,
+  readOnly: PropTypes.bool,
+}
 
 function FacturaCreate() {
   const [search, setSearch] = useState('')
