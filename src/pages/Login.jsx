@@ -6,7 +6,7 @@ import { EyeSlashFilledIcon } from '../icons/EyeSlashFilledIcon'
 import { EyeFilledIcon } from '../icons/EyeFilledIcon'
 import { MailIcon } from '../icons/MailIcon'
 import { LockClosedIcon } from '../icons/LockClosedIcon'
-import { API_URL, TOAST_STYLE } from '../config/constants'
+import { apiUrl, toastStyle } from '../config/constants'
 import { useNavigate  } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
 import axios from 'axios'
@@ -40,7 +40,7 @@ function Login(){
                         return errors;
                     }}
                     onSubmit={(values, { setSubmitting }) => {
-                        axios.post(`${API_URL}/usuario-realm/authenticate`, {
+                        axios.post(`${apiUrl}/usuario-realm/authenticate`, {
                             usuario: values.email,
                             password: values.password
                           })
@@ -54,7 +54,7 @@ function Login(){
                           })
                           .catch(error => {
                             toast.error('Autenticación fallida', {
-                                style: TOAST_STYLE
+                                style: toastStyle
                             })
                             console.log(error)
                             setSubmitting(false);

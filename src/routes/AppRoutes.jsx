@@ -15,7 +15,7 @@ function AppRoutes() {
               <Route path="" element={<Inicio />} />
               <Route path="factura">
                   <Route index element={<FacturaList />} />
-                  <Route path="create" element={<FacturaCreate />} />
+                  <Route path="emitir" element={<FacturaCreate />} />
               </Route>
             </Route>
         </Route>

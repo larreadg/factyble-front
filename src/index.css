@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.read-only div[data-slot="input-wrapper"] {
+    @apply bg-zinc-200;
+}
