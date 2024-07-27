@@ -13,6 +13,7 @@
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@fontsource/roboto": "^5.0.13",
+    "@mui/icons-material": "^5.16.5",
     "@mui/material": "^5.16.5",
     "@nextui-org/avatar": "^2.0.30",
     "@nextui-org/breadcrumbs": "^2.0.10",
