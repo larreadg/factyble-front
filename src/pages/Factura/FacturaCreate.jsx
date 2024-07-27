@@ -1,22 +1,20 @@
 import { useEffect, useState } from 'react'
-import toast, { Toaster } from 'react-hot-toast'
 import { Button } from '@nextui-org/button'
-import { Avatar } from '@nextui-org/react'
 import { Divider } from '@nextui-org/divider'
 import { Card, CardBody } from '@nextui-org/react'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Input } from '@nextui-org/input'
 import { Formik, FieldArray, useFormikContext } from 'formik'
 import { apiUrl, condicionesVenta, situacionesTributarias, tasas, toastStyle } from '../../config/constants'
-import CustomBreadcrumbs from '../../components/CustomBreadcrumbs'
-import axiosInstance from '../../services/axiosInstance'
-import axios from 'axios'
-import * as Yup from 'yup'
-import UserIcon from '../../icons/UserIcon'
 import { calcularImpuesto, calcularPrecio, calcularTotalGeneral, calcularTotalGeneralIva, formatNumber } from '../../utils/facturacion'
 import { PlusIcon } from '../../icons/PlusIcon'
 import { MinusIcon } from '../../icons/MinusIcon'
+import { facturaCreateValidationSchema } from '../../formValidations/facturaCreate'
+import toast, { Toaster } from 'react-hot-toast'
+import CustomBreadcrumbs from '../../components/CustomBreadcrumbs'
 import PropTypes from 'prop-types'
+import axiosInstance from '../../services/axiosInstance'
+import axios from 'axios'
 
 function FacturaInputTotalGeneral({ label, labelPlacement, name, value, variant, className, readOnly }) {
 
@@ -88,15 +86,6 @@ function FacturaCreate() {
     { label: 'Emitir factura', link: null }
   ]
 
-  const validationSchema = Yup.object().shape({
-    situacionTributaria: Yup.string().required('Situación tributaria es obligatoria'),
-    ruc: Yup.string().required('Ruc es obligatorio'),
-    razonSocial: Yup.string().required('Razón Social es obligatoria'),
-    domicilio: Yup.string().required('Domicilio es obligatorio'),
-    email: Yup.string().email('El email no es válido').required('Email es obligatorio'),
-    condicionVenta: Yup.string().required('Condición de venta es obligatorio'),
-  })
-
   const buscarRuc = (setFieldValue) => {
     if (search) {
       axios
@@ -143,17 +132,21 @@ function FacturaCreate() {
                   { cantidad: 1, precioUnitario: 0, tasa: '10%', impuesto: 0, total: 0, descripcion: '' }
                 ]
               }}
-              validationSchema={validationSchema}
-              onSubmit={(values, { setSubmitting }) => {
-                axiosInstance.post(`${apiUrl}/realm`, { ...values })
-                  .then(() => {
-                    toast.success('Dominio creado', { style: toastStyle })
-                    setSubmitting(false)
-                  })
-                  .catch(() => {
-                    toast.error('Error al crear dominio', { style: toastStyle })
-                    setSubmitting(false)
-                  })
+              validationSchema={facturaCreateValidationSchema}
+              onSubmit={(values, { setSubmitting, validateForm }) => {
+                validateForm().then(errors => {
+                  console.log(errors)
+                })
+                console.log(values)
+                // axiosInstance.post(`${apiUrl}/realm`, { ...values })
+                //   .then(() => {
+                //     toast.success('Dominio creado', { style: toastStyle })
+                //     setSubmitting(false)
+                //   })
+                //   .catch(() => {
+                //     toast.error('Error al crear dominio', { style: toastStyle })
+                //     setSubmitting(false)
+                //   })
               }}
             >
               {({
@@ -192,7 +185,7 @@ function FacturaCreate() {
                     </section>
                     <section className='flex flex-col sm:flex-row items-end gap-2'>
                       <Input
-                        label='RUC'
+                        label='Buscar RUC'
                         labelPlacement='outside'
                         type='text'
                         name='ruc'
@@ -212,23 +205,44 @@ function FacturaCreate() {
                             Buscar
                       </Button>
                     </section>
-                    {values.ruc && (
-                      <section className='flex items-center gap-2'>
-                        <section>
-                          <Avatar
-                            color="secondary"
-                            className=" cursor-pointer"
-                            size="sm"
-                            showFallback
-                            fallback={<UserIcon className="w-4 h-4 text-white" />}
-                          />
-                        </section>
-                        <section>
-                          <p className='font-bold text-primary'>{values.ruc}</p>
-                          <p>{values.razonSocial}</p>
-                        </section>
+                    <section  className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <section className='col-span-1 md:col-span-2'>
+                        <Input
+                          label='Razón Social'
+                          labelPlacement='outside'
+                          type='text'
+                          name='razonSocial'
+                          variant='bordered'
+                          isInvalid={errors.razonSocial && touched.razonSocial}
+                          color={errors.razonSocial && touched.razonSocial ? 'danger' : ''}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          value={values.razonSocial}
+                          errorMessage={errors.razonSocial && touched.razonSocial ? errors.razonSocial : ''}
+                          placeholder='Razón Social...'
+                          className='read-only'
+                          readOnly
+                        />
                       </section>
-                    )}
+                      <section className='col-span-1 md:col-span-1'>
+                        <Input
+                          label='RUC'
+                          labelPlacement='outside'
+                          type='text'
+                          name='ruc'
+                          variant='bordered'
+                          isInvalid={errors.ruc && touched.ruc}
+                          color={errors.ruc && touched.ruc ? 'danger' : ''}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          value={values.ruc}
+                          errorMessage={errors.ruc && touched.ruc ? errors.ruc : ''}
+                          placeholder='RUC...'
+                          className='read-only'
+                          readOnly
+                        />
+                      </section>
+                    </section>
                     <section>
                       <Input
                         label='Domicilio'
@@ -302,6 +316,9 @@ function FacturaCreate() {
                                       name={`items.${index}.cantidad`}
                                       variant='bordered'
                                       value={item.cantidad}
+                                      isInvalid={errors.items?.[index]?.cantidad && touched.items?.[index]?.cantidad}
+                                      color={errors.items?.[index]?.cantidad && touched.items?.[index]?.cantidad ? 'danger' : ''}
+                                      errorMessage={errors.items?.[index]?.cantidad && touched.items?.[index]?.cantidad ? errors.items?.[index]?.cantidad : ''}
                                       onChange={(e) => {
                                         const value = e.target.value
                                         setFieldValue(`items.${index}.cantidad`, value)
@@ -322,6 +339,9 @@ function FacturaCreate() {
                                       name={`items.${index}.precioUnitario`}
                                       variant='bordered'
                                       value={item.precioUnitario}
+                                      isInvalid={errors.items?.[index]?.precioUnitario && touched.items?.[index]?.precioUnitario}
+                                      color={errors.items?.[index]?.precioUnitario && touched.items?.[index]?.precioUnitario ? 'danger' : ''}
+                                      errorMessage={errors.items?.[index]?.precioUnitario && touched.items?.[index]?.precioUnitario ? errors.items?.[index]?.precioUnitario : ''}
                                       pattern='\d*'
                                       onChange={(e) => {
                                         const value = Number(e.target.validity.valid ? e.target.value : item.precioUnitario)
@@ -391,6 +411,9 @@ function FacturaCreate() {
                                       name={`items.${index}.descripcion`}
                                       variant='bordered'
                                       value={item.descripcion}
+                                      isInvalid={errors.items?.[index]?.descripcion && touched.items?.[index]?.descripcion}
+                                      color={errors.items?.[index]?.descripcion && touched.items?.[index]?.descripcion ? 'danger' : ''}
+                                      errorMessage={errors.items?.[index]?.descripcion && touched.items?.[index]?.descripcion ? errors.items?.[index]?.descripcion : ''}
                                       onChange={handleChange}
                                     />
                                   </section>
@@ -455,12 +478,15 @@ function FacturaCreate() {
                         />
                       </section>
                     </section>
-                    <section className='flex justify-end mt-4'>
+                    <section className='flex justify-center mt-4'>
                       <Button
+                        size='lg'
                         color='primary'
                         disabled={isSubmitting}
                         type='submit'
                         loading={isSubmitting}
+                        // isDisabled={!isValid}
+                        className='w-full md:w-1/3'
                       >
                         Emitir Factura
                       </Button>

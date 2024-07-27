@@ -34,7 +34,7 @@ const Nav = ({ isSidebarOpen, setIsSidebarOpen }) => {
   }
 
   return (
-    <Navbar className=" h-16" isBordered={true}>
+    <Navbar className="h-16" isBordered={true}>
       <NavbarContent>
         <Avatar
           color="secondary"
