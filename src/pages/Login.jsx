@@ -12,6 +12,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import axios from 'axios'
 import bgPattern from '../assets/pattern.webp'
 import factyble from '../assets/factyble.webp'
+import { loginValidationSchema } from '../formValidations/login'
 
 function Login(){
 
@@ -30,15 +31,7 @@ function Login(){
                 <CardBody className='px-6 pb-12'>
                     <Formik
                     initialValues={{ email: '', password: '' }}
-                    validate={values => {
-                        const errors = {};
-                        if (!values.email) {
-                            errors.email = 'Required';
-                        } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
-                            errors.email = 'Invalid email address';
-                        }
-                        return errors;
-                    }}
+                    validationSchema={loginValidationSchema}
                     onSubmit={(values, { setSubmitting }) => {
                         axios.post(`${apiUrl}/usuario-realm/authenticate`, {
                             usuario: values.email,

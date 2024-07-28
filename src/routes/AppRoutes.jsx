@@ -5,6 +5,7 @@ import AppLayout from '../layouts/AppLayout'
 import Inicio from '../pages/Inicio'
 import FacturaList from '../pages/Factura/FacturaList'
 import FacturaCreate from '../pages/Factura/FacturaCreate'
+import MiNegocio from '../pages/MiNegocio'
 
 function AppRoutes() {
   return (
@@ -16,6 +17,9 @@ function AppRoutes() {
               <Route path="factura">
                   <Route index element={<FacturaList />} />
                   <Route path="emitir" element={<FacturaCreate />} />
+              </Route>
+              <Route path="mi-negocio">
+                  <Route index element={<MiNegocio />} />
               </Route>
             </Route>
         </Route>

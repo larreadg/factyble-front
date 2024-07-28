@@ -8,7 +8,7 @@ const facturaDetalleValidationSchema = Yup.object().shape({
     .typeError('Cantidad debe ser un número'),
   precioUnitario: Yup.number()
     .required('Precio Unitario es obligatorio')
-    .min(0, 'Precio Unitario no puede ser negativo')
+    .min(1, 'Precio Unitario debe ser mayor a 0')
     .typeError('Precio Unitario debe ser un número'),
   tasa: Yup.string()
     .required('Tasa es obligatoria'),

@@ -1,10 +1,9 @@
 function Inicio() {
-    return (
-      <>
-          <p>Inicio</p>
-      </>
-    )
-  }
-  
-  export default Inicio
-  
+  return (
+    <>
+      <p>Inicio</p>
+    </>
+  )
+}
+
+export default Inicio

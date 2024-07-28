@@ -80,6 +80,7 @@ FacturaInputTotalGeneralIva.propTypes = {
 
 function FacturaCreate() {
   const [search, setSearch] = useState('')
+  const [searchLoading, setSearchLoading] = useState(false)
 
   const breadcrumbs = [
     { label: 'Inicio', link: '/' },
@@ -88,10 +89,12 @@ function FacturaCreate() {
 
   const buscarRuc = (setFieldValue) => {
     if (search) {
+      setSearchLoading(true)
       axios
-        .get(`${apiUrl}?ruc=${search}`)
-        .then((response) => {
-          if (response.data) {
+      .get(`${apiUrl}?ruc=${search}`)
+      .then((response) => {
+        if (response.data) {
+            setSearchLoading(false)
             const { data } = response.data
             if (data !== null) {
               const { ruc, razonSocial } = data
@@ -104,6 +107,7 @@ function FacturaCreate() {
           }
         })
         .catch((error) => {
+          setSearchLoading(false)
           console.error('Error fetching data:', error)
           toast.error('Error al buscar RUC', { style: toastStyle })
         })
@@ -133,20 +137,16 @@ function FacturaCreate() {
                 ]
               }}
               validationSchema={facturaCreateValidationSchema}
-              onSubmit={(values, { setSubmitting, validateForm }) => {
-                validateForm().then(errors => {
-                  console.log(errors)
-                })
-                console.log(values)
-                // axiosInstance.post(`${apiUrl}/realm`, { ...values })
-                //   .then(() => {
-                //     toast.success('Dominio creado', { style: toastStyle })
-                //     setSubmitting(false)
-                //   })
-                //   .catch(() => {
-                //     toast.error('Error al crear dominio', { style: toastStyle })
-                //     setSubmitting(false)
-                //   })
+              onSubmit={(values, { setSubmitting }) => {
+                axiosInstance.post(`${apiUrl}/factura`, { ...values })
+                  .then(() => {
+                    toast.success('Factura creada', { style: toastStyle })
+                    setSubmitting(false)
+                  })
+                  .catch(() => {
+                    toast.error('Error al crear factura', { style: toastStyle })
+                    setSubmitting(false)
+                  })
               }}
             >
               {({
@@ -191,15 +191,14 @@ function FacturaCreate() {
                         name='ruc'
                         variant='bordered'
                         onChange={(e) => setSearch(e.target.value)}
-                        onBlur={handleBlur}
                         value={search}
                         placeholder='Buscar RUC...'
                       />
                       <Button
                           color='primary'
-                          disabled={isSubmitting}
+                          disabled={searchLoading}
                           type='button'
-                          loading={isSubmitting}
+                          loading={searchLoading}
                           className='w-full lg:w-auto'
                           onClick={() => buscarRuc(setFieldValue)}>
                             Buscar
