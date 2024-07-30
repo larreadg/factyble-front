@@ -91,7 +91,7 @@ function FacturaCreate() {
     if (search) {
       setSearchLoading(true)
       axios
-      .get(`${apiUrl}?ruc=${search}`)
+      .get(`${apiUrl}/buscar?ruc=${search}`)
       .then((response) => {
         if (response.data) {
             setSearchLoading(false)
@@ -290,7 +290,7 @@ function FacturaCreate() {
                         onBlur={handleBlur} 
                       >
                         {condicionesVenta.map((el) => (
-                          <SelectItem key={el.label}>
+                          <SelectItem key={el.key}>
                             {el.label}
                           </SelectItem>
                         ))}
@@ -319,7 +319,7 @@ function FacturaCreate() {
                                       color={errors.items?.[index]?.cantidad && touched.items?.[index]?.cantidad ? 'danger' : ''}
                                       errorMessage={errors.items?.[index]?.cantidad && touched.items?.[index]?.cantidad ? errors.items?.[index]?.cantidad : ''}
                                       onChange={(e) => {
-                                        const value = e.target.value
+                                        const value = Number(e.target.value)
                                         setFieldValue(`items.${index}.cantidad`, value)
                                         const total = calcularPrecio(value, item.precioUnitario)
                                         const impuesto = calcularImpuesto(value, item.precioUnitario, item.tasa)

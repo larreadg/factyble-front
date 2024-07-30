@@ -1,4 +1,4 @@
-export const apiUrl = 'https://seguridad.personal.com.py/desa/api-test/index.php'
+export const apiUrl = 'http://localhost:8000'
 export const toastStyle = {
     borderRadius: '0.5rem',
     background: '#070a0f',
@@ -15,9 +15,11 @@ export const situacionesTributarias = [
 ]
 export const condicionesVenta = [
     {
+        key: 'CONTADO',
         label: 'CONTADO'
     },
     {
+        key: 'CREDITO',
         label: 'CRÉDITO'
     },
 ]
