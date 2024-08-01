@@ -41,7 +41,7 @@ function Login(){
                             const { data } = response
                             if(data.data && data.data.token){
                                 localStorage.setItem('token', data.data.token)
-                                navigate('/admin')
+                                navigate('/')
                             }
                             setSubmitting(false)
                           })

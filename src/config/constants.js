@@ -12,6 +12,9 @@ export const situacionesTributarias = [
     {
         label: 'NO CONTRIBUYENTE'
     },
+    {
+        label: 'NO DOMICILIADO'
+    },
 ]
 export const condicionesVenta = [
     {
@@ -35,5 +38,35 @@ export const tasas = [
     {
         key: '10%',
         label: 'IVA 10%'
+    },
+]
+
+export const tiposIdentificacionesNoContribuyente = [
+    {
+        key: 'CEDULA',
+        label: 'CEDULA'
+    },
+    {
+        key: 'CARNE_DE_RESIDENCIA',
+        label: 'CARNÉ DE RESIDENCIA'
+    },
+]
+
+export const tiposIdentificacionesNoDomiciliado = [
+    {
+        key: 'CEDULA',
+        label: 'CEDULA'
+    },
+    {
+        key: 'CARNE_DE_RESIDENCIA',
+        label: 'CARNÉ DE RESIDENCIA'
+    },
+    {
+        key: 'PASAPORTE',
+        label: 'PASAPORTE'
+    },
+    {
+        key: 'IDENTIFICACION_TRIBUTARIA',
+        label: 'IDENTIFICACIÓN TRIBUTARIA'
     },
 ]

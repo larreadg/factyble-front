@@ -30,7 +30,7 @@ const Nav = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate('/admin/login')
+    navigate('/login')
   }
 
   return (

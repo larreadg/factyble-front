@@ -5,16 +5,15 @@ import { Card, CardBody } from '@nextui-org/react'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Input } from '@nextui-org/input'
 import { Formik, FieldArray, useFormikContext } from 'formik'
-import { apiUrl, condicionesVenta, situacionesTributarias, tasas, toastStyle } from '../../config/constants'
+import { apiUrl, condicionesVenta, situacionesTributarias, tasas, tiposIdentificacionesNoContribuyente, tiposIdentificacionesNoDomiciliado, toastStyle } from '../../config/constants'
 import { calcularImpuesto, calcularPrecio, calcularTotalGeneral, calcularTotalGeneralIva, formatNumber } from '../../utils/facturacion'
 import { PlusIcon } from '../../icons/PlusIcon'
 import { MinusIcon } from '../../icons/MinusIcon'
-import { facturaCreateValidationSchema } from '../../formValidations/facturaCreate'
+import { facturaCreateValidationSchemaContribuyente, facturaCreateValidationSchemaNoContribuyente, facturaCreateValidationSchemaNoDomiciliado } from '../../formValidations/facturaCreate'
 import toast, { Toaster } from 'react-hot-toast'
 import CustomBreadcrumbs from '../../components/CustomBreadcrumbs'
 import PropTypes from 'prop-types'
 import axiosInstance from '../../services/axiosInstance'
-import axios from 'axios'
 
 function FacturaInputTotalGeneral({ label, labelPlacement, name, value, variant, className, readOnly }) {
 
@@ -80,6 +79,7 @@ FacturaInputTotalGeneralIva.propTypes = {
 
 function FacturaCreate() {
   const [search, setSearch] = useState('')
+  const [validationSchema, setValidationSchema] = useState(facturaCreateValidationSchemaContribuyente)
   const [searchLoading, setSearchLoading] = useState(false)
 
   const breadcrumbs = [
@@ -87,29 +87,47 @@ function FacturaCreate() {
     { label: 'Emitir factura', link: null }
   ]
 
-  const buscarRuc = (setFieldValue) => {
+  const buscarRuc = (situacionTributaria, setFieldValue) => {
     if (search) {
       setSearchLoading(true)
-      axios
-      .get(`${apiUrl}/buscar?ruc=${search}`)
-      .then((response) => {
-        if (response.data) {
-            setSearchLoading(false)
+      axiosInstance
+        .get(`${apiUrl}/buscar?ruc=${search}&situacionTributaria=${situacionTributaria}`)
+        .then((response) => {
+          setSearchLoading(false)
+          if (response.data) {
             const { data } = response.data
             if (data !== null) {
-              const { ruc, razonSocial } = data
-              setFieldValue('ruc', ruc)
-              setFieldValue('razonSocial', razonSocial)
-              toast.success('RUC encontrado', { style: toastStyle })
+              
+              if(situacionTributaria === 'CONTRIBUYENTE'){
+                const { ruc, razon_social: razonSocial } = data
+                setFieldValue('ruc', ruc)
+                setFieldValue('razonSocial', razonSocial)
+              } else if (situacionTributaria === 'NO_CONTRIBUYENTE'){
+
+                const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion } = data
+                setFieldValue('nombres', nombres)
+                setFieldValue('apellidos', apellidos)
+                setFieldValue('identificacion', documento)
+                setFieldValue('tipoIdentificacion', tipoIdentificacion)
+
+              } else {
+                const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion } = data
+                setFieldValue('nombres', nombres)
+                setFieldValue('apellidos', apellidos)
+                setFieldValue('identificacion', documento)
+                setFieldValue('tipoIdentificacion', tipoIdentificacion)
+              }
+              toast.success('Datos encontrados', { style: toastStyle })
+              
             } else {
-              toast.error('RUC no encontrado', { style: toastStyle })
+              toast.error('Error al buscar datos', { style: toastStyle })
             }
           }
         })
         .catch((error) => {
           setSearchLoading(false)
           console.error('Error fetching data:', error)
-          toast.error('Error al buscar RUC', { style: toastStyle })
+          toast.error('Error al buscar datos', { style: toastStyle })
         })
     }
   }
@@ -125,10 +143,15 @@ function FacturaCreate() {
             <Formik
               initialValues={{
                 situacionTributaria: 'CONTRIBUYENTE',
+                identificacion: '',
+                tipoIdentificacion: '',
+                nombres: '',
+                apellidos: '',
                 ruc: '',
                 razonSocial: '',
                 domicilio: '',
                 email: '',
+                pais: '',
                 condicionVenta: 'CONTADO',
                 totalIva: 0,
                 total: 0,
@@ -136,7 +159,7 @@ function FacturaCreate() {
                   { cantidad: 1, precioUnitario: 0, tasa: '10%', impuesto: 0, total: 0, descripcion: '' }
                 ]
               }}
-              validationSchema={facturaCreateValidationSchema}
+              validationSchema={validationSchema}
               onSubmit={(values, { setSubmitting }) => {
                 axiosInstance.post(`${apiUrl}/factura`, { ...values })
                   .then(() => {
@@ -166,15 +189,29 @@ function FacturaCreate() {
                       <Divider className="mt-4" />
                     </section>
                     <section>
-                      <Select 
+                      <Select
                         variant='bordered'
                         labelPlacement='outside'
                         label='Situación tributaria'
                         size='md'
                         value={values.situacionTributaria}
                         defaultSelectedKeys={[values.situacionTributaria]}
-                        onChange={(e) => setFieldValue('situacionTributaria', e.target.value)}
-                        onBlur={handleBlur} 
+                        onChange={(e) => {
+                          setFieldValue('situacionTributaria', e.target.value)
+
+                          switch (e.target.value) {
+                            case 'CONTRIBUYENTE':
+                              setValidationSchema(facturaCreateValidationSchemaContribuyente)
+                              break
+                            case 'NO CONTRIBUYENTE':
+                              setValidationSchema(facturaCreateValidationSchemaNoContribuyente)
+                              break
+                            default:
+                              setValidationSchema(facturaCreateValidationSchemaNoDomiciliado)
+                              break
+                          }
+                        }}
+                        onBlur={handleBlur}
                       >
                         {situacionesTributarias.map((el) => (
                           <SelectItem key={el.label}>
@@ -183,103 +220,355 @@ function FacturaCreate() {
                         ))}
                       </Select>
                     </section>
-                    <section className='flex flex-col sm:flex-row items-end gap-2'>
-                      <Input
-                        label='Buscar RUC'
-                        labelPlacement='outside'
-                        type='text'
-                        name='ruc'
-                        variant='bordered'
-                        onChange={(e) => setSearch(e.target.value)}
-                        value={search}
-                        placeholder='Buscar RUC...'
-                      />
-                      <Button
-                          color='primary'
-                          disabled={searchLoading}
-                          type='button'
-                          loading={searchLoading}
-                          className='w-full lg:w-auto'
-                          onClick={() => buscarRuc(setFieldValue)}>
+
+                    {values.situacionTributaria === 'CONTRIBUYENTE' && (
+                      <>
+                        <section className='flex flex-col sm:flex-row items-end gap-2'>
+                          <Input
+                            label='Buscar RUC'
+                            labelPlacement='outside'
+                            type='text'
+                            variant='bordered'
+                            onChange={(e) => setSearch(e.target.value)}
+                            value={search}
+                            placeholder='Buscar RUC...'
+                          />
+                          <Button
+                            color='primary'
+                            disabled={searchLoading}
+                            type='button'
+                            loading={searchLoading}
+                            className='w-full lg:w-auto'
+                            onClick={() => buscarRuc('CONTRIBUYENTE', setFieldValue)}>
                             Buscar
-                      </Button>
-                    </section>
-                    <section  className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <section className='col-span-1 md:col-span-2'>
-                        <Input
-                          label='Razón Social'
-                          labelPlacement='outside'
-                          type='text'
-                          name='razonSocial'
-                          variant='bordered'
-                          isInvalid={errors.razonSocial && touched.razonSocial}
-                          color={errors.razonSocial && touched.razonSocial ? 'danger' : ''}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          value={values.razonSocial}
-                          errorMessage={errors.razonSocial && touched.razonSocial ? errors.razonSocial : ''}
-                          placeholder='Razón Social...'
-                          className='read-only'
-                          readOnly
-                        />
-                      </section>
-                      <section className='col-span-1 md:col-span-1'>
-                        <Input
-                          label='RUC'
-                          labelPlacement='outside'
-                          type='text'
-                          name='ruc'
-                          variant='bordered'
-                          isInvalid={errors.ruc && touched.ruc}
-                          color={errors.ruc && touched.ruc ? 'danger' : ''}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          value={values.ruc}
-                          errorMessage={errors.ruc && touched.ruc ? errors.ruc : ''}
-                          placeholder='RUC...'
-                          className='read-only'
-                          readOnly
-                        />
-                      </section>
-                    </section>
-                    <section>
-                      <Input
-                        label='Domicilio'
-                        labelPlacement='outside'
-                        type='text'
-                        name='domicilio'
-                        variant='bordered'
-                        isInvalid={errors.domicilio && touched.domicilio}
-                        color={errors.domicilio && touched.domicilio ? 'danger' : ''}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.domicilio}
-                        errorMessage={errors.domicilio && touched.domicilio ? errors.domicilio : ''}
-                        placeholder='Domicilio...'
-                      />
-                    </section>
-                    <section>
-                      <Input
-                        label='Email'
-                        labelPlacement='outside'
-                        type='email'
-                        name='email'
-                        variant='bordered'
-                        isInvalid={errors.email && touched.email}
-                        color={errors.email && touched.email ? 'danger' : ''}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.email}
-                        errorMessage={errors.email && touched.email ? errors.email : ''}
-                        placeholder='Email...'
-                      />
-                    </section>
+                          </Button>
+                        </section>
+                        <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <section className='col-span-1 md:col-span-2'>
+                            <Input
+                              label='Razón Social'
+                              labelPlacement='outside'
+                              type='text'
+                              name='razonSocial'
+                              variant='bordered'
+                              isInvalid={errors.razonSocial && touched.razonSocial}
+                              color={errors.razonSocial && touched.razonSocial ? 'danger' : ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.razonSocial}
+                              errorMessage={errors.razonSocial && touched.razonSocial ? errors.razonSocial : ''}
+                              placeholder='Razón Social...'
+                              className='read-only'
+                              readOnly
+                            />
+                          </section>
+                          <section className='col-span-1 md:col-span-1'>
+                            <Input
+                              label='RUC'
+                              labelPlacement='outside'
+                              type='text'
+                              name='ruc'
+                              variant='bordered'
+                              isInvalid={errors.ruc && touched.ruc}
+                              color={errors.ruc && touched.ruc ? 'danger' : ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.ruc}
+                              errorMessage={errors.ruc && touched.ruc ? errors.ruc : ''}
+                              placeholder='RUC...'
+                              className='read-only'
+                              readOnly
+                            />
+                          </section>
+                        </section>
+                        <section>
+                          <Input
+                            label='Domicilio'
+                            labelPlacement='outside'
+                            type='text'
+                            name='domicilio'
+                            variant='bordered'
+                            isInvalid={errors.domicilio && touched.domicilio}
+                            color={errors.domicilio && touched.domicilio ? 'danger' : ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.domicilio}
+                            errorMessage={errors.domicilio && touched.domicilio ? errors.domicilio : ''}
+                            placeholder='Domicilio...'
+                          />
+                        </section>
+                        <section>
+                          <Input
+                            label='Email'
+                            labelPlacement='outside'
+                            type='email'
+                            name='email'
+                            variant='bordered'
+                            isInvalid={errors.email && touched.email}
+                            color={errors.email && touched.email ? 'danger' : ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.email}
+                            errorMessage={errors.email && touched.email ? errors.email : ''}
+                            placeholder='Email...'
+                          />
+                        </section>
+                      </>
+                    )}
+                    {values.situacionTributaria === 'NO CONTRIBUYENTE' && (
+                      <>
+                        <section className='flex flex-col sm:flex-row items-end gap-2'>
+                          <Input
+                            label='Buscar por Identificación'
+                            labelPlacement='outside'
+                            type='number'
+                            variant='bordered'
+                            onChange={(e) => setSearch(e.target.value)}
+                            value={search}
+                            placeholder='Escriba el nro. de identificación...'
+                          />
+                          <Button
+                            color='primary'
+                            disabled={searchLoading}
+                            type='button'
+                            loading={searchLoading}
+                            className='w-full lg:w-auto'
+                            onClick={() => buscarRuc('NO_CONTRIBUYENTE', setFieldValue)}>
+                            Buscar
+                          </Button>
+                        </section>
+                        <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <section className='col-span-1 md:col-span-1'>
+                            <Input
+                              label='Nombres'
+                              labelPlacement='outside'
+                              type='text'
+                              name='nombres'
+                              variant='bordered'
+                              isInvalid={errors.nombres && touched.nombres}
+                              color={errors.nombres && touched.nombres ? 'danger' : ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.nombres}
+                              errorMessage={errors.nombres && touched.nombres ? errors.nombres : ''}
+                              placeholder='Nombres...'
+                            />
+                          </section>
+                          <section className='col-span-1 md:col-span-1'>
+                            <Input
+                              label='Apellidos'
+                              labelPlacement='outside'
+                              type='text'
+                              name='apellidos'
+                              variant='bordered'
+                              isInvalid={errors.apellidos && touched.apellidos}
+                              color={errors.apellidos && touched.apellidos ? 'danger' : ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.apellidos}
+                              errorMessage={errors.apellidos && touched.apellidos ? errors.apellidos : ''}
+                              placeholder='Apellidos...'
+                            />
+                          </section>
+                          <section className='col-span-1 md:col-span-1'>
+                            <Input
+                              label='Identificación'
+                              labelPlacement='outside'
+                              type='number'
+                              name='identificacion'
+                              variant='bordered'
+                              isInvalid={errors.identificacion && touched.identificacion}
+                              color={errors.identificacion && touched.identificacion ? 'danger' : ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.identificacion}
+                              errorMessage={errors.identificacion && touched.identificacion ? errors.identificacion : ''}
+                              placeholder='Identificacion...'
+                            />
+                          </section>
+                          <section className='col-span-1 md:col-span-1'>
+                            <Select
+                              variant='bordered'
+                              labelPlacement='outside'
+                              label='Tipo Identificación'
+                              size='md'
+                              value={values.tipoIdentificacion}
+                              defaultSelectedKeys={['CEDULA']}
+                              onChange={(e) => setFieldValue('tipoIdentificacion', e.target.value)}
+                              onBlur={handleBlur}
+                            >
+                              {tiposIdentificacionesNoContribuyente.map((el) => (
+                                <SelectItem key={el.key}>
+                                  {el.label}
+                                </SelectItem>
+                              ))}
+                            </Select>
+                          </section>
+                        </section>
+                        <section>
+                          <Input
+                            label='Domicilio'
+                            labelPlacement='outside'
+                            type='text'
+                            name='domicilio'
+                            variant='bordered'
+                            isInvalid={errors.domicilio && touched.domicilio}
+                            color={errors.domicilio && touched.domicilio ? 'danger' : ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.domicilio}
+                            errorMessage={errors.domicilio && touched.domicilio ? errors.domicilio : ''}
+                            placeholder='Domicilio...'
+                          />
+                        </section>
+                        <section>
+                          <Input
+                            label='Email'
+                            labelPlacement='outside'
+                            type='email'
+                            name='email'
+                            variant='bordered'
+                            isInvalid={errors.email && touched.email}
+                            color={errors.email && touched.email ? 'danger' : ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.email}
+                            errorMessage={errors.email && touched.email ? errors.email : ''}
+                            placeholder='Email...'
+                          />
+                        </section>
+                      </>
+                    )}
+                    {values.situacionTributaria === 'NO DOMICILIADO' && (
+                      <>
+                        <section className='flex flex-col sm:flex-row items-end gap-2'>
+                          <Input
+                            label='Buscar por Identificación'
+                            labelPlacement='outside'
+                            type='number'
+                            variant='bordered'
+                            onChange={(e) => setSearch(e.target.value)}
+                            value={search}
+                            placeholder='Escriba el nro. de identificación...'
+                          />
+                          <Button
+                            color='primary'
+                            disabled={searchLoading}
+                            type='button'
+                            loading={searchLoading}
+                            className='w-full lg:w-auto'
+                            onClick={() => buscarRuc('NO_DOMICILIADO', setFieldValue)}>
+                            Buscar
+                          </Button>
+                        </section>
+                        <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <section className='col-span-1 md:col-span-1'>
+                            <Input
+                              label='Nombres'
+                              labelPlacement='outside'
+                              type='text'
+                              name='nombres'
+                              variant='bordered'
+                              isInvalid={errors.nombres && touched.nombres}
+                              color={errors.nombres && touched.nombres ? 'danger' : ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.nombres}
+                              errorMessage={errors.nombres && touched.nombres ? errors.nombres : ''}
+                              placeholder='Nombres...'
+                            />
+                          </section>
+                          <section className='col-span-1 md:col-span-1'>
+                            <Input
+                              label='Apellidos'
+                              labelPlacement='outside'
+                              type='text'
+                              name='apellidos'
+                              variant='bordered'
+                              isInvalid={errors.apellidos && touched.apellidos}
+                              color={errors.apellidos && touched.apellidos ? 'danger' : ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.apellidos}
+                              errorMessage={errors.apellidos && touched.apellidos ? errors.apellidos : ''}
+                              placeholder='Apellidos...'
+                            />
+                          </section>
+                          <section className='col-span-1 md:col-span-1'>
+                            <Input
+                              label='Identificación'
+                              labelPlacement='outside'
+                              type='number'
+                              name='identificacion'
+                              variant='bordered'
+                              isInvalid={errors.identificacion && touched.identificacion}
+                              color={errors.identificacion && touched.identificacion ? 'danger' : ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.identificacion}
+                              errorMessage={errors.identificacion && touched.identificacion ? errors.identificacion : ''}
+                              placeholder='Identificacion...'
+                            />
+                          </section>
+                          <section className='col-span-1 md:col-span-1'>
+                            <Select
+                              variant='bordered'
+                              labelPlacement='outside'
+                              label='Tipo Identificación'
+                              size='md'
+                              value={values.tipoIdentificacion}
+                              defaultSelectedKeys={['CEDULA']}
+                              onChange={(e) => setFieldValue('tipoIdentificacion', e.target.value)}
+                              onBlur={handleBlur}
+                            >
+                              {tiposIdentificacionesNoDomiciliado.map((el) => (
+                                <SelectItem key={el.key}>
+                                  {el.label}
+                                </SelectItem>
+                              ))}
+                            </Select>
+                          </section>
+                        </section>
+                        <section>
+                          <Input
+                            label='Domicilio'
+                            labelPlacement='outside'
+                            type='text'
+                            name='domicilio'
+                            variant='bordered'
+                            isInvalid={errors.domicilio && touched.domicilio}
+                            color={errors.domicilio && touched.domicilio ? 'danger' : ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.domicilio}
+                            errorMessage={errors.domicilio && touched.domicilio ? errors.domicilio : ''}
+                            placeholder='Domicilio...'
+                          />
+                        </section>
+                        <section>
+                          <Input
+                            label='Email'
+                            labelPlacement='outside'
+                            type='email'
+                            name='email'
+                            variant='bordered'
+                            isInvalid={errors.email && touched.email}
+                            color={errors.email && touched.email ? 'danger' : ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.email}
+                            errorMessage={errors.email && touched.email ? errors.email : ''}
+                            placeholder='Email...'
+                          />
+                        </section>
+                      </>
+                    )}
                     <section>
                       <h1 className='font-bold text-secondary'>TRANSACCIÓN</h1>
                       <Divider className="mt-4" />
                     </section>
                     <section>
-                      <Select 
+                      <Select
                         variant='bordered'
                         labelPlacement='outside'
                         label='Condición de venta'
@@ -287,7 +576,7 @@ function FacturaCreate() {
                         value={values.condicionVenta}
                         defaultSelectedKeys={[values.condicionVenta]}
                         onChange={(e) => setFieldValue('condicionVenta', e.target.value)}
-                        onBlur={handleBlur} 
+                        onBlur={handleBlur}
                       >
                         {condicionesVenta.map((el) => (
                           <SelectItem key={el.key}>
@@ -306,7 +595,7 @@ function FacturaCreate() {
                           {values.items.map((item, index) => (
                             <Card className='p-4' key={index}>
                               <CardBody>
-                                <section  className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                                <section className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2">
                                   <section>
                                     <Input
                                       label='Cantidad'
@@ -348,7 +637,7 @@ function FacturaCreate() {
                                         const total = calcularPrecio(item.cantidad, value)
                                         const impuesto = calcularImpuesto(item.cantidad, value, item.tasa)
                                         setFieldValue(`items.${index}.total`, total)
-                                        setFieldValue(`items.${index}.impuesto`, impuesto)                                        
+                                        setFieldValue(`items.${index}.impuesto`, impuesto)
                                       }}
                                     />
                                   </section>
@@ -422,7 +711,7 @@ function FacturaCreate() {
                                       type="button"
                                       onClick={() => remove(index)}
                                       className='w-full sm:w-auto'
-                                      startContent={(<MinusIcon/>)}
+                                      startContent={(<MinusIcon />)}
                                     >
                                       Quitar Ítem
                                     </Button>
@@ -438,7 +727,7 @@ function FacturaCreate() {
                               onClick={() => push({ cantidad: 1, precioUnitario: 0, tasa: '10%', impuesto: 0, total: 0, descripcion: '' })}
                               className='w-full sm:w-auto text-white'
                               startContent={(
-                                <PlusIcon/>
+                                <PlusIcon />
                               )}
                             >
                               Agregar Ítem

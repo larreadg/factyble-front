@@ -9,7 +9,7 @@ const useAxiosInterceptor = (axiosInstance) => {
       (response) => response,
       (error) => {
         if (error.response && error.response.status === 401) {
-          navigate('/admin/login')
+          navigate('/login')
         }
         return Promise.reject(error)
       }

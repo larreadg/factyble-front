@@ -18,12 +18,33 @@ const facturaDetalleValidationSchema = Yup.object().shape({
   total: Yup.number().required('Total es obligatorio').typeError('Total debe ser un número'),
 })
 
-// Define el esquema de validación general que incluye el array de items
-export const facturaCreateValidationSchema = Yup.object().shape({
+// Define el esquema de validación general que incluye el array de items para contribuyentes
+export const facturaCreateValidationSchemaContribuyente = Yup.object().shape({
   situacionTributaria: Yup.string().required('Situación tributaria es obligatoria'),
   ruc: Yup.string().required('Ruc es obligatorio'),
   razonSocial: Yup.string().required('Razón Social es obligatoria'),
-  domicilio: Yup.string().required('Domicilio es obligatorio'),
+  email: Yup.string().email('El email no es válido').required('Email es obligatorio'),
+  condicionVenta: Yup.string().required('Condición de venta es obligatorio'),
+  items: Yup.array().of(facturaDetalleValidationSchema).min(1, 'Debe haber al menos un item'),
+})
+
+export const facturaCreateValidationSchemaNoContribuyente = Yup.object().shape({
+  situacionTributaria: Yup.string().required('Situación tributaria es obligatoria'),
+  identificacion: Yup.string().required('Identificación es obligatoria'),
+  tipoIdentificacion: Yup.string().required('Tipo de identificación es obligatorio'),
+  nombres: Yup.string().required('Nombres es obligatorio'),
+  apellidos: Yup.string().required('Apellidos es obligatorio'),
+  email: Yup.string().email('El email no es válido').required('Email es obligatorio'),
+  condicionVenta: Yup.string().required('Condición de venta es obligatorio'),
+  items: Yup.array().of(facturaDetalleValidationSchema).min(1, 'Debe haber al menos un item'),
+})
+
+export const facturaCreateValidationSchemaNoDomiciliado = Yup.object().shape({
+  situacionTributaria: Yup.string().required('Situación tributaria es obligatoria'),
+  identificacion: Yup.string().required('Identificación es obligatoria'),
+  tipoIdentificacion: Yup.string().required('Tipo de identificación es obligatorio'),
+  nombres: Yup.string().required('Nombres es obligatorio'),
+  apellidos: Yup.string().required('Apellidos es obligatorio'),
   email: Yup.string().email('El email no es válido').required('Email es obligatorio'),
   condicionVenta: Yup.string().required('Condición de venta es obligatorio'),
   items: Yup.array().of(facturaDetalleValidationSchema).min(1, 'Debe haber al menos un item'),
