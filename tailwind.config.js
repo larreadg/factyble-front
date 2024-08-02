@@ -17,6 +17,9 @@ export default {
           DEFAULT: '#063d70'
         },
       },
+      fontFamily: {
+        poppins: ['Poppins', 'sans-serif'],
+      },
     },
   },
   lightMode: "class",

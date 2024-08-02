@@ -102,6 +102,7 @@ function FacturaCreate() {
                 const { ruc, razon_social: razonSocial } = data
                 setFieldValue('ruc', ruc)
                 setFieldValue('razonSocial', razonSocial)
+                setFieldValue('tipoIdentificacion', 'RUC')
               } else if (situacionTributaria === 'NO_CONTRIBUYENTE'){
 
                 const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion } = data
@@ -133,7 +134,7 @@ function FacturaCreate() {
   }
 
   return (
-    <>
+    <main className='w-full lg:w-3/4 lg:mx-auto'>
       <section className='grid grid-cols-1'>
         <CustomBreadcrumbs items={breadcrumbs} />
       </section>
@@ -766,15 +767,14 @@ function FacturaCreate() {
                         />
                       </section>
                     </section>
-                    <section className='flex justify-center mt-4'>
+                    <section className='flex justify-center lg:justify-end mt-4'>
                       <Button
                         size='lg'
                         color='primary'
                         disabled={isSubmitting}
                         type='submit'
                         loading={isSubmitting}
-                        // isDisabled={!isValid}
-                        className='w-full md:w-1/3'
+                        className='w-full lg:w-1/3'
                       >
                         Emitir Factura
                       </Button>
@@ -787,7 +787,7 @@ function FacturaCreate() {
         </Card>
         <Toaster />
       </section>
-    </>
+    </main>
   )
 }
 
