@@ -52,7 +52,7 @@ const Nav = ({ isSidebarOpen, setIsSidebarOpen }) => {
       <NavbarContent justify="end">
         { user && (
           <NavbarItem className='flex items-center gap-2'>
-            <p className='text-right'>{user.usuario}</p>
+            <p className='text-right text-sm hidden lg:block'>{user.email}</p>
             <Avatar color="secondary" className='' size='sm' showFallback fallback={
               <UserIcon className="w-4 h-4 text-white" fill="currentColor" size={20} />
             }/>
