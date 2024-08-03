@@ -70,3 +70,5 @@ export const tiposIdentificacionesNoDomiciliado = [
         label: 'IDENTIFICACIÓN TRIBUTARIA'
     },
 ]
+
+export const itemsPorPagina = 10
