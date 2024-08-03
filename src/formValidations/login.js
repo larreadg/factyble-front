@@ -5,5 +5,7 @@ export const loginValidationSchema = Yup.object().shape({
       .email('Debe ser un email válido')
       .required('El email es obligatorio'),
     password: Yup.string()
-      .required('La contraseña es obligatoria')
+      .required('La contraseña es obligatoria'),
+    captcha: Yup.string()
+      .required('La captcha es obligatoria')
 })
