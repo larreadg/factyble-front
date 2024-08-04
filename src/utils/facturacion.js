@@ -47,7 +47,7 @@ export const calcularPrecio = (cantidad, precioUnitario) => {
  * @returns {string} - El número formateado con separadores de miles.
  */
 export function formatNumber(num) {
-    return num.toLocaleString('es-ES'); // 'es-ES' para usar el formato de España, que usa puntos como separador de miles.
+    return new Intl.NumberFormat('es-ES', { useGrouping: true }).format(num)
 }
 
 /**

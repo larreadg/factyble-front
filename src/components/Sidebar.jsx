@@ -15,13 +15,13 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         <nav>
           <ul>
             <li className="mb-2">
-              <Link to="/" className="block p-2" onClick={() => setIsSidebarOpen(false)}>Inicio</Link>
+              <Link to="/" className="block p-2 text-sm" onClick={() => setIsSidebarOpen(false)}>Inicio</Link>
             </li>
             <li className="mb-2">
-              <Link to="/factura/emitir" className="block p-2" onClick={() => setIsSidebarOpen(false)}>Emitir factura</Link>
+              <Link to="/factura" className="block p-2 text-sm" onClick={() => setIsSidebarOpen(false)}>Emitir factura</Link>
             </li>
             <li className="mb-2">
-              <Link to="/factura" className="block p-2" onClick={() => setIsSidebarOpen(false)}>Facturas emitidas</Link>
+              <Link to="/documento" className="block p-2 text-sm" onClick={() => setIsSidebarOpen(false)}>Documentos emitidos</Link>
             </li>
           </ul>
         </nav>

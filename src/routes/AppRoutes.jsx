@@ -3,9 +3,8 @@ import Login from '../pages/Login'
 import ProtectedRoute from '../components/ProtectedRoute'
 import AppLayout from '../layouts/AppLayout'
 import Inicio from '../pages/Inicio'
-import FacturaList from '../pages/Factura/FacturaList'
+import DocumentoList from '../pages/Documento/DocumentoList'
 import FacturaCreate from '../pages/Factura/FacturaCreate'
-import MiNegocio from '../pages/MiNegocio'
 
 function AppRoutes() {
   return (
@@ -15,11 +14,10 @@ function AppRoutes() {
             <Route element={<AppLayout />}>
               <Route path="" element={<Inicio />} />
               <Route path="factura">
-                  <Route index element={<FacturaList />} />
-                  <Route path="emitir" element={<FacturaCreate />} />
+                <Route index element={<FacturaCreate />} />
               </Route>
-              <Route path="mi-negocio">
-                  <Route index element={<MiNegocio />} />
+              <Route path="documento">
+                <Route index element={<DocumentoList />} />
               </Route>
             </Route>
         </Route>
