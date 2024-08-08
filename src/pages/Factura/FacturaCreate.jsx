@@ -97,13 +97,13 @@ function FacturaCreate() {
           if (response.data) {
             const { data } = response.data
             if (data !== null) {
-              
-              if(situacionTributaria === 'CONTRIBUYENTE'){
+
+              if (situacionTributaria === 'CONTRIBUYENTE') {
                 const { ruc, razon_social: razonSocial } = data
                 setFieldValue('ruc', ruc)
                 setFieldValue('razonSocial', razonSocial)
                 setFieldValue('tipoIdentificacion', 'RUC')
-              } else if (situacionTributaria === 'NO_CONTRIBUYENTE'){
+              } else if (situacionTributaria === 'NO_CONTRIBUYENTE') {
 
                 const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion } = data
                 setFieldValue('nombres', nombres)
@@ -119,7 +119,7 @@ function FacturaCreate() {
                 setFieldValue('tipoIdentificacion', tipoIdentificacion)
               }
               toast.success('Datos encontrados', { style: toastStyle })
-              
+
             } else {
               toast.error('Error al buscar datos', { style: toastStyle })
             }
@@ -240,7 +240,8 @@ function FacturaCreate() {
                             type='button'
                             loading={searchLoading}
                             className='w-full lg:w-auto'
-                            onClick={() => buscarRuc('CONTRIBUYENTE', setFieldValue)}>
+                            onClick={() => buscarRuc('CONTRIBUYENTE', setFieldValue)}
+                            isLoading={searchLoading}>
                             Buscar
                           </Button>
                         </section>
@@ -334,7 +335,8 @@ function FacturaCreate() {
                             type='button'
                             loading={searchLoading}
                             className='w-full lg:w-auto'
-                            onClick={() => buscarRuc('NO_CONTRIBUYENTE', setFieldValue)}>
+                            onClick={() => buscarRuc('NO_CONTRIBUYENTE', setFieldValue)}
+                            isLoading={searchLoading}>
                             Buscar
                           </Button>
                         </section>
@@ -458,7 +460,8 @@ function FacturaCreate() {
                             type='button'
                             loading={searchLoading}
                             className='w-full lg:w-auto'
-                            onClick={() => buscarRuc('NO_DOMICILIADO', setFieldValue)}>
+                            onClick={() => buscarRuc('NO_DOMICILIADO', setFieldValue)}
+                            isLoading={searchLoading}>
                             Buscar
                           </Button>
                         </section>

@@ -4,18 +4,25 @@ import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Spinne
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react'
 import { Chip } from '@nextui-org/chip'
 import { Pagination } from '@nextui-org/pagination'
-import { apiUrl, itemsPorPagina } from '../../config/constants'
+import { apiUrl, itemsPorPagina, toastStyle } from '../../config/constants'
 import { useEffect, useState } from 'react'
 import axiosInstance from '../../services/axiosInstance'
 import { SearchIcon } from '../../icons/SearchIcon'
 import { UserIcon } from '../../icons/UserIcon'
 import { ClockIcon } from '../../icons/ClockIcon'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import { CheckIcon } from '../../icons/CheckIcon'
 import { CloseIcon } from '../../icons/CloseIcon'
 import { LinkIcon } from '../../icons/LinkIcon'
 import { EyeFilledIcon } from '../../icons/EyeFilledIcon'
 import { Tooltip } from '@nextui-org/tooltip'
+import { MailIcon } from '../../icons/MailIcon'
+import { reenviarEmailValidationSchema } from '../../formValidations/documentoList'
+import toast, { Toaster } from 'react-hot-toast'
+import { Formik } from 'formik'
+import { NoSymbolIcon } from '../../icons/NoSymbolIcon'
+dayjs.extend(utc)
 
 function DocumentoList() {
 
@@ -30,8 +37,12 @@ function DocumentoList() {
   const [data, setData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [itemsPerPage, setItemsPerPage] = useState(itemsPorPagina)
-  const { isOpen, onOpen, onOpenChange } = useDisclosure()
+  const { isOpen: isOpenModalInfo, onOpen: onOpenModalInfo, onOpenChange: onOpenChangeModalInfo } = useDisclosure()
+  const { isOpen: isOpenModalReenviar, onOpen: onOpenModalReenviar, onOpenChange: onOpenChangeModalReenviar } = useDisclosure()
+  const { isOpen: isOpenModalCancelar, onOpen: onOpenModalCancelar, onOpenChange: onOpenChangeModalCancelar } = useDisclosure()
   const [modalInfoItem, setModalInfoItem] = useState(null)
+  const [modalReenviarItem, setModalReenviarItem] = useState(null)
+  const [modalCancelarItem, setModalCancelarItem] = useState(null)
 
   useEffect(() => {
     setPage(1)
@@ -81,7 +92,7 @@ function DocumentoList() {
                 onClear={() => setFilter('')}
               />
               <Table
-                aria-label='Example table with client async pagination'
+                isStriped
                 bottomContent={
                   pages > 0 ? (
                     <section className='flex w-full justify-center gap-4'>
@@ -113,7 +124,7 @@ function DocumentoList() {
               >
                 <TableHeader>
                   <TableColumn>Acciones</TableColumn>
-                  <TableColumn>Nro. Factura</TableColumn>
+                  <TableColumn>Nro. Documento</TableColumn>
                   <TableColumn>Creado el</TableColumn>
                   <TableColumn>Cliente</TableColumn>
                   <TableColumn>Estado</TableColumn>
@@ -126,18 +137,41 @@ function DocumentoList() {
                   {(item) => (
                     <TableRow>
                       <TableCell>
-                        <Tooltip content="Ver detalles">
-                          <Button size="sm" isIconOnly color='primary' onClick={() => {
-                            setModalInfoItem(item)
-                            onOpen()
-                          }}>
-                            <EyeFilledIcon />
-                          </Button>
+                        <section className='flex gap-1'>
+                          <Tooltip content="Ver detalles" key='info' aria-describedby='Ver detalles'>
+                            <Button size="sm" aria-label='Ver detalles' isIconOnly color='primary' onClick={() => {
+                              setModalInfoItem(item)
+                              onOpenModalInfo()
+                            }}>
+                              <EyeFilledIcon />
+                            </Button>
+                          </Tooltip>
 
-                        </Tooltip>
+                          {item.sifen_estado === 'Aprobado' && (
+                            <Tooltip content="Reenviar documento" key='resend-email' aria-describedby='Reenviar documento'>
+                              <Button size="sm" aria-label='Reenviar documento' isIconOnly color='secondary' onClick={() => {
+                                setModalReenviarItem(item)
+                                onOpenModalReenviar()
+                              }}>
+                                <MailIcon />
+                              </Button>
+                            </Tooltip>
+                          )}
+
+                          {dayjs.utc(item.fecha_creacion).add(72, 'hour').isAfter(dayjs.utc()) && item.sifen_estado === 'Aprobado' && (
+                            <Tooltip content="Anular documento" key='anular-documento' aria-describedby='Anular documento'>
+                              <Button size="sm" aria-label='Anular documento' isIconOnly color='danger' onClick={() => {
+                                setModalCancelarItem(item)
+                                onOpenModalCancelar()
+                              }}>
+                                <NoSymbolIcon />
+                              </Button>
+                            </Tooltip>
+                          )}
+                        </section>
                       </TableCell>
                       <TableCell>
-                        <a href={item.kude} target='_blank' className='text-xs text-primary cursor-pointer hover:underline'>
+                        <a href={`${apiUrl}/public/${item.factura_uuid}.pdf`} target='_blank' className='text-xs text-primary cursor-pointer hover:underline'>
                           <section className='flex items-center gap-1'>
                             <LinkIcon />
                             <span>
@@ -146,13 +180,14 @@ function DocumentoList() {
                           </section>
                         </a>
                       </TableCell>
-                      <TableCell><p className='text-xs'>{dayjs(item.fecha_creacion).format('DD/MM/YYYY HH:mm:ss')}</p></TableCell>
+                      <TableCell><p className='text-xs'>{dayjs.utc(item.fecha_creacion).format('DD/MM/YYYY HH:mm:ss')}</p></TableCell>
                       <TableCell>
                         <section className='flex items-center gap-2'>
                           <UserIcon className='text-primary w-6 h-auto' />
                           <section className='flex flex-col gap-1'>
-                            <p className='text-primary font-bold text-xs'>{item.cliente_empresa.cliente.tipo_identificacion} | {item.cliente_empresa.cliente.ruc ?? item.cliente_empresa.cliente.documento}</p>
-                            <p className='text-sm'> {item.cliente_empresa.cliente.razon_social ?? `${item.cliente_empresa.cliente.nombres} ${item.cliente_empresa.cliente.apellidos}`}</p>
+                            <p className='text-primary text-xs'>{item.cliente_empresa.cliente.tipo_identificacion} | {item.cliente_empresa.cliente.ruc ?? item.cliente_empresa.cliente.documento}</p>
+                            <p className='text-xs'> {item.cliente_empresa.cliente.razon_social ?? `${item.cliente_empresa.cliente.nombres} ${item.cliente_empresa.cliente.apellidos}`}</p>
+                            <a className='text-xs text-primary' href={`mailto:${item.cliente_empresa.cliente.email}`}>{item.cliente_empresa.cliente.email}</a>
                           </section>
                         </section>
                       </TableCell>
@@ -188,6 +223,16 @@ function DocumentoList() {
                               Rechazado
                             </Chip>
                           )}
+                          {item.sifen_estado === 'Anulado' && (
+                            <Chip
+                              startContent={<NoSymbolIcon className='size-4' />}
+                              variant='solid'
+                              color='danger'
+                              size='sm'
+                            >
+                              Anulado
+                            </Chip>
+                          )}
                         </section>
                       </TableCell>
                     </TableRow>
@@ -199,7 +244,7 @@ function DocumentoList() {
         </Card>
       </section>
 
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false} isKeyboardDismissDisabled={true}>
+      <Modal isOpen={isOpenModalInfo} onOpenChange={onOpenChangeModalInfo} isDismissable={false} isKeyboardDismissDisabled={true}>
         <ModalContent>
           {(onClose) => (
             <>
@@ -251,7 +296,7 @@ function DocumentoList() {
                       </section>
                       <section className='flex items-center gap-2'>
                         <section className='w-1/4 text-xs text-default-900 font-bold'>KUDE</section>
-                        <a className='text-xs text-primary underline truncate w-3/4' href={modalInfoItem.kude} target='_blank'>{modalInfoItem.kude}</a>
+                        <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${modalInfoItem.factura_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${modalInfoItem.factura_uuid}.pdf`}</a>
                       </section>
                       <section className='flex items-center gap-2'>
                         <section className='w-1/4 text-xs text-default-900 font-bold'>XML</section>
@@ -270,7 +315,174 @@ function DocumentoList() {
           )}
         </ModalContent>
       </Modal>
-    </main>
+      <Modal isOpen={isOpenModalReenviar} onOpenChange={onOpenChangeModalReenviar} isDismissable={false} isKeyboardDismissDisabled={true}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <Formik
+                initialValues={{ email: '' }}
+                validationSchema={reenviarEmailValidationSchema}
+                onSubmit={(values, { setSubmitting }) => {
+                  axiosInstance.post(`${apiUrl}/factura/reenviar`, {
+                    email: values.email,
+                    facturaId: modalReenviarItem.id
+                  })
+                    .then(() => {
+                      toast.success('Documento reenviado', {
+                        style: toastStyle
+                      });
+                      setSubmitting(false);
+                      onClose(); // Cerrar modal después de enviar el formulario con éxito
+                    })
+                    .catch(error => {
+                      toast.error('Error al reenviar documento', {
+                        style: toastStyle
+                      });
+                      console.log(error);
+                      setSubmitting(false);
+                    });
+                }}
+              >
+                {({
+                  values,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  isSubmitting,
+                }) => (
+                  <>
+                    <ModalHeader className='flex flex-col gap-1 text-default-900'>
+                      Doc. Nro: {modalReenviarItem.numero_factura}
+                    </ModalHeader>
+                    <ModalBody>
+                      <section className='flex flex-col gap-2'>
+                        <form className='space-y-4 flex flex-col gap-2'>
+                          <section>
+                            <Input
+                              key='outside'
+                              label='Email'
+                              labelPlacement='outside'
+                              type='email'
+                              name='email'
+                              variant='bordered'
+                              isInvalid={errors && errors.email && touched.email}
+                              color={errors && errors.email && touched.email ? 'danger' : ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.email}
+                              errorMessage={errors.email}
+                              placeholder='Email'
+                              startContent={
+                                <MailIcon className='text-2xl text-default-400 pointer-events-none flex-shrink-0' />
+                              }
+                            />
+                          </section>
+                        </form>
+                      </section>
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button color='danger' variant='light' onPress={onClose}>
+                        Cerrar
+                      </Button>
+                      <Button
+                        color='primary'
+                        isDisabled={isSubmitting}
+                        type='submit'
+                        isLoading={isSubmitting}
+                        onPress={handleSubmit}
+                      >
+                        Reenviar documento
+                      </Button>
+                    </ModalFooter>
+                    <Toaster />
+                  </>
+                )}
+              </Formik>
+
+            </>
+          )}
+        </ModalContent>
+      </Modal >
+      <Modal isOpen={isOpenModalCancelar} onOpenChange={onOpenChangeModalCancelar} isDismissable={false} isKeyboardDismissDisabled={true}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className='flex flex-col gap-1 text-default-900'>Doc. Nro: {modalCancelarItem.numero_factura}</ModalHeader>
+              <ModalBody>
+                <section className='flex flex-col gap-2'>
+                  <section className='flex items-center gap-2'>
+                    {modalCancelarItem.sifen_estado === null && (
+                      <Chip
+                        startContent={<ClockIcon className='size-4' />}
+                        variant='solid'
+                        color='default'
+                        size='sm'
+                      >
+                        Pendiente
+                      </Chip>
+                    )}
+                    {modalCancelarItem.sifen_estado === 'Aprobado' && (
+                      <Chip
+                        startContent={<CheckIcon className='size-4' />}
+                        variant='solid'
+                        color='success'
+                        size='sm'
+                      >
+                        Aprobado
+                      </Chip>
+                    )}
+                    {modalCancelarItem.sifen_estado === 'Rechazado' && (
+                      <Chip
+                        startContent={<CloseIcon className='size-4' />}
+                        variant='solid'
+                        color='danger'
+                        size='sm'
+                      >
+                        Rechazado
+                      </Chip>
+                    )}
+                  </section>
+
+                  {modalCancelarItem.sifen_estado === 'Rechazado' ? (
+                    <>
+                      <p className='text-xs text-danger'>{modalCancelarItem.sifen_estado_mensaje}</p>
+                    </>
+                  ) : (
+                    <>
+                      <section className='flex items-center gap-2'>
+                        <section className='w-1/4 text-xs text-default-900 font-bold'>CDC</section>
+                        <section className='w-3/4 text-xs text-default-900'>{modalCancelarItem.cdc}</section>
+                      </section>
+                      <section className='flex items-center gap-2'>
+                        <section className='w-1/4 text-xs text-default-900 font-bold'>KUDE</section>
+                        <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${modalCancelarItem.factura_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${modalCancelarItem.factura_uuid}.pdf`}</a>
+                      </section>
+                      <section className='flex items-center gap-2'>
+                        <section className='w-1/4 text-xs text-default-900 font-bold'>XML</section>
+                        <a className='text-xs text-primary underline truncate w-3/4' href={modalCancelarItem.xml} target='_blank'>{modalCancelarItem.xml}</a>
+                      </section>
+                    </>
+                  )}
+                  <section>
+                    <p className='text-center text-default-900 py-4'>¿Desea anular el documento?</p>
+                  </section>
+                </section>
+              </ModalBody>
+              <ModalFooter>
+                <Button color='danger' variant='light' onPress={onClose}>
+                  Cerrar
+                </Button>
+                <Button color='danger' variant='solid' onPress={onClose}>
+                  Sí, anular el documento
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </main >
   )
 }
 
