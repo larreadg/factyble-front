@@ -18,43 +18,119 @@ const facturaDetalleValidationSchema = Yup.object().shape({
   total: Yup.number().required('Total es obligatorio').typeError('Total debe ser un número'),
 })
 
-// Define el esquema de validación general que incluye el array de items para contribuyentes
-export const facturaCreateValidationSchemaContribuyente = Yup.object().shape({
+export const facturaCreateValidationSchema = Yup.object().shape({
   situacionTributaria: Yup.string().required('Situación tributaria es obligatoria'),
-  ruc: Yup.string().required('Ruc es obligatorio'),
-  razonSocial: Yup.string().required('Razón Social es obligatoria'),
+  
+  // Validaciones para contribuyentes
+  ruc: Yup.string()
+    .nullable()
+    .test(
+      'ruc-required',
+      'RUC es obligatorio cuando la situación tributaria es contribuyente',
+      function (value) {
+        const { situacionTributaria } = this.parent;
+        return situacionTributaria !== 'CONTRIBUYENTE' || !!value;
+      }
+    ),
+  razonSocial: Yup.string()
+    .nullable()
+    .test(
+      'razonSocial-required',
+      'Razón Social es obligatoria cuando la situación tributaria es contribuyente',
+      function (value) {
+        const { situacionTributaria } = this.parent;
+        return situacionTributaria !== 'CONTRIBUYENTE' || !!value;
+      }
+    ),
+  
+  // Validaciones para no contribuyentes o no domiciliados
+  nombres: Yup.string()
+    .nullable()
+    .test(
+      'nombres-required',
+      'Nombres es obligatorio cuando la situación tributaria es no contribuyente o no domiciliado',
+      function (value) {
+        const { situacionTributaria } = this.parent;
+        return situacionTributaria === 'CONTRIBUYENTE' || !!value;
+      }
+    ),
+  apellidos: Yup.string()
+    .nullable()
+    .test(
+      'apellidos-required',
+      'Apellidos es obligatorio cuando la situación tributaria es no contribuyente o no domiciliado',
+      function (value) {
+        const { situacionTributaria } = this.parent;
+        return situacionTributaria === 'CONTRIBUYENTE' || !!value;
+      }
+    ),
+  identificacion: Yup.string()
+    .nullable()
+    .test(
+      'identificacion-required',
+      'Identificación es obligatoria cuando la situación tributaria es no contribuyente o no domiciliado',
+      function (value) {
+        const { situacionTributaria } = this.parent;
+        return situacionTributaria === 'CONTRIBUYENTE' || !!value;
+      }
+    ),
+  tipoIdentificacion: Yup.string()
+    .nullable()
+    .test(
+      'tipoIdentificacion-required',
+      'Tipo de Identificación es obligatorio cuando la situación tributaria es no contribuyente o no domiciliado',
+      function (value) {
+        const { situacionTributaria } = this.parent;
+        return situacionTributaria === 'CONTRIBUYENTE' || !!value;
+      }
+    ),
+  
+  // Validaciones para el campo email y condicionVenta
   email: Yup.string().email('El email no es válido').required('Email es obligatorio'),
-  condicionVenta: Yup.string().required('Condición de venta es obligatorio'),
+  condicionVenta: Yup.string().required('Condición de venta es obligatoria'),
+
+  // Validaciones condicionales previas para tipoCredito, cantidadCuota, periodicidad, plazoDescripcion
+  tipoCredito: Yup.string()
+    .nullable()
+    .test(
+      'tipoCredito-required',
+      'Tipo de crédito es obligatorio cuando la condición de venta es crédito',
+      function (value) {
+        const { condicionVenta } = this.parent;
+        return condicionVenta !== 'CREDITO' || !!value;
+      }
+    ),
+  cantidadCuota: Yup.number()
+    .nullable()
+    .test(
+      'cantidadCuota-required',
+      'Cantidad de cuotas es obligatoria cuando el tipo de crédito es cuota',
+      function (value) {
+        const { condicionVenta, tipoCredito } = this.parent;
+        return condicionVenta !== 'CREDITO' || tipoCredito !== 'CUOTA' || !!value;
+      }
+    ),
+  periodicidad: Yup.string()
+    .nullable()
+    .test(
+      'periodicidad-required',
+      'Periodicidad es obligatoria cuando el tipo de crédito es cuota',
+      function (value) {
+        const { condicionVenta, tipoCredito } = this.parent;
+        return condicionVenta !== 'CREDITO' || tipoCredito !== 'CUOTA' || !!value;
+      }
+    ),
+  plazoDescripcion: Yup.string()
+    .nullable()
+    .test(
+      'plazoDescripcion-required',
+      'Descripción del plazo es obligatoria cuando el tipo de crédito es a plazo',
+      function (value) {
+        const { condicionVenta, tipoCredito } = this.parent;
+        return condicionVenta !== 'CREDITO' || tipoCredito !== 'A_PLAZO' || !!value;
+      }
+    ),
+  
+  // Validación del array de items
   items: Yup.array().of(facturaDetalleValidationSchema).min(1, 'Debe haber al menos un item'),
-})
-
-export const facturaCreateValidationSchemaNoContribuyente = Yup.object().shape({
-  situacionTributaria: Yup.string().required('Situación tributaria es obligatoria'),
-  identificacion: Yup.string().required('Identificación es obligatoria'),
-  tipoIdentificacion: Yup.string().required('Tipo de identificación es obligatorio'),
-  nombres: Yup.string().required('Nombres es obligatorio'),
-  apellidos: Yup.string().required('Apellidos es obligatorio'),
-  email: Yup.string().email('El email no es válido').required('Email es obligatorio'),
-  condicionVenta: Yup.string().required('Condición de venta es obligatorio'),
-  items: Yup.array().of(facturaDetalleValidationSchema).min(1, 'Debe haber al menos un item'),
-})
-
-export const facturaCreateValidationSchemaNoDomiciliado = Yup.object().shape({
-  situacionTributaria: Yup.string().required('Situación tributaria es obligatoria'),
-  identificacion: Yup.string().required('Identificación es obligatoria'),
-  tipoIdentificacion: Yup.string().required('Tipo de identificación es obligatorio'),
-  nombres: Yup.string().required('Nombres es obligatorio'),
-  apellidos: Yup.string().required('Apellidos es obligatorio'),
-  email: Yup.string().email('El email no es válido').required('Email es obligatorio'),
-  condicionVenta: Yup.string().required('Condición de venta es obligatorio'),
-  items: Yup.array().of(facturaDetalleValidationSchema).min(1, 'Debe haber al menos un item'),
-})
-
-export const facturaCreateValidationSchemaTipoCreaditoCuota = Yup.object().shape({
-  cantidadCuota: Yup.number().min(1, 'La cantidad mínima es 1').required('Cantidad de cuotas es obligatoria'),
-  periodicidad: Yup.string().required('Identificación es obligatoria'),
-})
-
-export const facturaCreateValidationSchemaTipoCreaditoAPlazo = Yup.object().shape({
-  plazoDescripcion: Yup.string().required('Identificación es obligatoria'),
 })

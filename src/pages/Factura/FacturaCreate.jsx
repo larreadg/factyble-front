@@ -10,7 +10,7 @@ import { apiUrl, condicionesVenta, situacionesTributarias, tasas, tiposCreditos,
 import { calcularImpuesto, calcularPrecio, calcularTotalGeneral, calcularTotalGeneralIva, formatNumber } from '../../utils/facturacion'
 import { PlusIcon } from '../../icons/PlusIcon'
 import { MinusIcon } from '../../icons/MinusIcon'
-import { facturaCreateValidationSchemaContribuyente, facturaCreateValidationSchemaNoContribuyente, facturaCreateValidationSchemaNoDomiciliado, facturaCreateValidationSchemaTipoCreaditoAPlazo, facturaCreateValidationSchemaTipoCreaditoCuota } from '../../formValidations/facturaCreate'
+import { facturaCreateValidationSchema } from '../../formValidations/facturaCreate'
 import toast, { Toaster } from 'react-hot-toast'
 import CustomBreadcrumbs from '../../components/CustomBreadcrumbs'
 import PropTypes from 'prop-types'
@@ -81,8 +81,6 @@ FacturaInputTotalGeneralIva.propTypes = {
 
 function FacturaCreate() {
   const [search, setSearch] = useState('')
-  const [validationSchema, setValidationSchema] = useState(facturaCreateValidationSchemaContribuyente)
-  const [parentValidationSchema, setParentValidationSchema] = useState(facturaCreateValidationSchemaContribuyente)
   const [searchLoading, setSearchLoading] = useState(false)
   const { isOpen: isOpenConfirmarCreacion, onOpen: onOpenConfirmarCreacion, onOpenChange: onOpenChangeConfirmarCreacion } = useDisclosure()
   const breadcrumbs = [
@@ -167,7 +165,7 @@ function FacturaCreate() {
                   { cantidad: 1, precioUnitario: 0, tasa: '10%', impuesto: 0, total: 0, descripcion: '' }
                 ]
               }}
-              validationSchema={validationSchema}
+              validationSchema={facturaCreateValidationSchema}
               onSubmit={(values, { setSubmitting, resetForm }) => {
 
                 if (values.situacionTributaria === 'NO_CONTRIBUYENTE') {
@@ -213,24 +211,7 @@ function FacturaCreate() {
                         size='md'
                         value={values.situacionTributaria}
                         defaultSelectedKeys={[values.situacionTributaria]}
-                        onChange={(e) => {
-                          setFieldValue('situacionTributaria', e.target.value)
-
-                          switch (e.target.value) {
-                            case 'CONTRIBUYENTE':
-                              setValidationSchema(facturaCreateValidationSchemaContribuyente)
-                              setParentValidationSchema(facturaCreateValidationSchemaContribuyente)
-                              break
-                            case 'NO_CONTRIBUYENTE':
-                              setValidationSchema(facturaCreateValidationSchemaNoContribuyente)
-                              setParentValidationSchema(facturaCreateValidationSchemaNoContribuyente)
-                              break
-                            default:
-                              setValidationSchema(facturaCreateValidationSchemaNoDomiciliado)
-                              setParentValidationSchema(facturaCreateValidationSchemaNoDomiciliado)
-                              break
-                          }
-                        }}
+                        onChange={(e) => setFieldValue('situacionTributaria', e.target.value)}
                         onBlur={handleBlur}
                       >
                         {situacionesTributarias.map((el) => (
@@ -365,7 +346,15 @@ function FacturaCreate() {
                             color='default'
                             type='button'
                             className='w-full sm:w-1/4'
-                            onClick={() => { setFieldValue('ruc', ''); setFieldValue('razonSocial', ''); setFieldTouched('ruc', false); setFieldTouched('razonSocial', false); setSearch('') }}>
+                            onClick={() => {                    
+                              const attrs = ['ruc', 'razonSocial', 'nombres', 'apellidos', 'identificacion', 'tipoIdentificacion']
+                              for(let attr of attrs){
+                                setFieldValue(attr, '') 
+                                setFieldTouched(attr, false)
+                              }
+                              setSearch('') 
+                            }}
+                            >
                             Limpiar
                           </Button>
                         </section>
@@ -471,7 +460,7 @@ function FacturaCreate() {
                         </section>
                       </>
                     )}
-                    {values.situacionTributaria === 'NO DOMICILIADO' && (
+                    {values.situacionTributaria === 'NO_DOMICILIADO' && (
                       <>
                         <section className='flex flex-col sm:flex-row items-end gap-2'>
                           <Input
@@ -497,7 +486,14 @@ function FacturaCreate() {
                             color='default'
                             type='button'
                             className='w-full sm:w-1/4'
-                            onClick={() => { setFieldValue('ruc', ''); setFieldValue('razonSocial', ''); setFieldTouched('ruc', false); setFieldTouched('razonSocial', false); setSearch('') }}>
+                            onClick={() => {                    
+                              const attrs = ['ruc', 'razonSocial', 'nombres', 'apellidos', 'identificacion', 'tipoIdentificacion']
+                              for(let attr of attrs){
+                                setFieldValue(attr, '') 
+                                setFieldTouched(attr, false)
+                              }
+                              setSearch('') 
+                            }}>
                             Limpiar
                           </Button>
                         </section>
@@ -615,21 +611,7 @@ function FacturaCreate() {
                         size='md'
                         value={values.condicionVenta}
                         defaultSelectedKeys={[values.condicionVenta]}
-                        onChange={(e) => {
-                          setFieldValue('condicionVenta', e.target.value)
-                          if(e.target.value === 'CREDITO'){
-                            switch (values.tipoCredito) {
-                              case 'CUOTA':
-                                setValidationSchema(parentValidationSchema.concat(facturaCreateValidationSchemaTipoCreaditoCuota))
-                                break
-                              case 'A_PLAZO':
-                                setValidationSchema(parentValidationSchema.concat(facturaCreateValidationSchemaTipoCreaditoAPlazo))
-                                break
-                              default:
-                                break
-                            }
-                          }
-                        }}
+                        onChange={(e) => setFieldValue('condicionVenta', e.target.value)}
                         onBlur={handleBlur}
                       >
                         {condicionesVenta.map((el) => (
@@ -649,19 +631,7 @@ function FacturaCreate() {
                             size='md'
                             value={values.tipo}
                             defaultSelectedKeys={[values.tipoCredito]}
-                            onChange={(e) => {
-                              setFieldValue('tipoCredito', e.target.value)
-                              switch (e.target.value) {
-                                case 'CUOTA':
-                                  setValidationSchema(parentValidationSchema.concat(facturaCreateValidationSchemaTipoCreaditoCuota))
-                                  break
-                                case 'A_PLAZO':
-                                  setValidationSchema(parentValidationSchema.concat(facturaCreateValidationSchemaTipoCreaditoAPlazo))
-                                  break
-                                default:
-                                  break
-                              }
-                            }}
+                            onChange={(e) => setFieldValue('tipoCredito', e.target.value)}
                             onBlur={handleBlur}
                           >
                             {tiposCreditos.map((el) => (
