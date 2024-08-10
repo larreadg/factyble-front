@@ -414,7 +414,7 @@ function DocumentoList() {
                 initialValues={{ motivo: '' }}
                 validationSchema={cancelarDocumentoValidationSchema}
                 onSubmit={(values, { setSubmitting }) => {
-                  axiosInstance.post(`${apiUrl}/factura/reenviar`, {
+                  axiosInstance.post(`${apiUrl}/factura/cancelar`, {
                     motivo: values.motivo,
                     facturaId: modalCancelarItem.id
                   })

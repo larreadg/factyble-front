@@ -49,3 +49,12 @@ export const facturaCreateValidationSchemaNoDomiciliado = Yup.object().shape({
   condicionVenta: Yup.string().required('Condición de venta es obligatorio'),
   items: Yup.array().of(facturaDetalleValidationSchema).min(1, 'Debe haber al menos un item'),
 })
+
+export const facturaCreateValidationSchemaTipoCreaditoCuota = Yup.object().shape({
+  cantidadCuota: Yup.number().min(1, 'La cantidad mínima es 1').required('Cantidad de cuotas es obligatoria'),
+  periodicidad: Yup.string().required('Identificación es obligatoria'),
+})
+
+export const facturaCreateValidationSchemaTipoCreaditoAPlazo = Yup.object().shape({
+  plazoDescripcion: Yup.string().required('Identificación es obligatoria'),
+})

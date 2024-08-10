@@ -6,11 +6,11 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure
 import { Select, SelectItem } from '@nextui-org/select'
 import { Input } from '@nextui-org/input'
 import { Formik, FieldArray, useFormikContext } from 'formik'
-import { apiUrl, condicionesVenta, situacionesTributarias, tasas, tiposIdentificacionesNoContribuyente, tiposIdentificacionesNoDomiciliado, toastStyle } from '../../config/constants'
+import { apiUrl, condicionesVenta, situacionesTributarias, tasas, tiposCreditos, tiposCreditosPeriodicidad, tiposIdentificacionesNoContribuyente, tiposIdentificacionesNoDomiciliado, toastStyle } from '../../config/constants'
 import { calcularImpuesto, calcularPrecio, calcularTotalGeneral, calcularTotalGeneralIva, formatNumber } from '../../utils/facturacion'
 import { PlusIcon } from '../../icons/PlusIcon'
 import { MinusIcon } from '../../icons/MinusIcon'
-import { facturaCreateValidationSchemaContribuyente, facturaCreateValidationSchemaNoContribuyente, facturaCreateValidationSchemaNoDomiciliado } from '../../formValidations/facturaCreate'
+import { facturaCreateValidationSchemaContribuyente, facturaCreateValidationSchemaNoContribuyente, facturaCreateValidationSchemaNoDomiciliado, facturaCreateValidationSchemaTipoCreaditoAPlazo, facturaCreateValidationSchemaTipoCreaditoCuota } from '../../formValidations/facturaCreate'
 import toast, { Toaster } from 'react-hot-toast'
 import CustomBreadcrumbs from '../../components/CustomBreadcrumbs'
 import PropTypes from 'prop-types'
@@ -82,6 +82,7 @@ FacturaInputTotalGeneralIva.propTypes = {
 function FacturaCreate() {
   const [search, setSearch] = useState('')
   const [validationSchema, setValidationSchema] = useState(facturaCreateValidationSchemaContribuyente)
+  const [parentValidationSchema, setParentValidationSchema] = useState(facturaCreateValidationSchemaContribuyente)
   const [searchLoading, setSearchLoading] = useState(false)
   const { isOpen: isOpenConfirmarCreacion, onOpen: onOpenConfirmarCreacion, onOpenChange: onOpenChangeConfirmarCreacion } = useDisclosure()
   const breadcrumbs = [
@@ -158,6 +159,10 @@ function FacturaCreate() {
                 condicionVenta: 'CONTADO',
                 totalIva: 0,
                 total: 0,
+                tipoCredito: 'CUOTA',
+                cantidadCuota: 1,
+                periodicidad: 'MENSUAL',
+                plazoDescripcion: '',
                 items: [
                   { cantidad: 1, precioUnitario: 0, tasa: '10%', impuesto: 0, total: 0, descripcion: '' }
                 ]
@@ -214,12 +219,15 @@ function FacturaCreate() {
                           switch (e.target.value) {
                             case 'CONTRIBUYENTE':
                               setValidationSchema(facturaCreateValidationSchemaContribuyente)
+                              setParentValidationSchema(facturaCreateValidationSchemaContribuyente)
                               break
                             case 'NO_CONTRIBUYENTE':
                               setValidationSchema(facturaCreateValidationSchemaNoContribuyente)
+                              setParentValidationSchema(facturaCreateValidationSchemaNoContribuyente)
                               break
                             default:
                               setValidationSchema(facturaCreateValidationSchemaNoDomiciliado)
+                              setParentValidationSchema(facturaCreateValidationSchemaNoDomiciliado)
                               break
                           }
                         }}
@@ -607,7 +615,21 @@ function FacturaCreate() {
                         size='md'
                         value={values.condicionVenta}
                         defaultSelectedKeys={[values.condicionVenta]}
-                        onChange={(e) => setFieldValue('condicionVenta', e.target.value)}
+                        onChange={(e) => {
+                          setFieldValue('condicionVenta', e.target.value)
+                          if(e.target.value === 'CREDITO'){
+                            switch (values.tipoCredito) {
+                              case 'CUOTA':
+                                setValidationSchema(parentValidationSchema.concat(facturaCreateValidationSchemaTipoCreaditoCuota))
+                                break
+                              case 'A_PLAZO':
+                                setValidationSchema(parentValidationSchema.concat(facturaCreateValidationSchemaTipoCreaditoAPlazo))
+                                break
+                              default:
+                                break
+                            }
+                          }
+                        }}
                         onBlur={handleBlur}
                       >
                         {condicionesVenta.map((el) => (
@@ -617,6 +639,98 @@ function FacturaCreate() {
                         ))}
                       </Select>
                     </section>
+                    {values.condicionVenta === 'CREDITO' && (
+                      <section className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                        <section>
+                          <Select
+                            variant='bordered'
+                            labelPlacement='outside'
+                            label='Tipo Crédito'
+                            size='md'
+                            value={values.tipo}
+                            defaultSelectedKeys={[values.tipoCredito]}
+                            onChange={(e) => {
+                              setFieldValue('tipoCredito', e.target.value)
+                              switch (e.target.value) {
+                                case 'CUOTA':
+                                  setValidationSchema(parentValidationSchema.concat(facturaCreateValidationSchemaTipoCreaditoCuota))
+                                  break
+                                case 'A_PLAZO':
+                                  setValidationSchema(parentValidationSchema.concat(facturaCreateValidationSchemaTipoCreaditoAPlazo))
+                                  break
+                                default:
+                                  break
+                              }
+                            }}
+                            onBlur={handleBlur}
+                          >
+                            {tiposCreditos.map((el) => (
+                              <SelectItem key={el.key}>
+                                {el.label}
+                              </SelectItem>
+                            ))}
+                          </Select>
+                        </section>
+                        {values.tipoCredito === 'CUOTA' && (
+                          <>
+                            <section>
+                              <Input
+                                label='Cantidad cuotas'
+                                labelPlacement='outside'
+                                type='number'
+                                name='cantidadCuota'
+                                variant='bordered'
+                                value={values.cantidadCuota}
+                                isInvalid={errors.cantidadCuota && touched.cantidadCuota}
+                                color={errors.cantidadCuota && touched.cantidadCuota ? 'danger' : ''}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                errorMessage={errors.cantidadCuota && touched.cantidadCuota ? errors.cantidadCuota : ''}
+                                placeholder='Cantidad de cuotas...'
+                              />
+                            </section>
+                            <section>
+                              <Select
+                                variant='bordered'
+                                labelPlacement='outside'
+                                label='Periodicidad'
+                                size='md'
+                                value={values.periodicidad}
+                                defaultSelectedKeys={[values.periodicidad]}
+                                onChange={(e) => setFieldValue('periodicidad', e.target.value)}
+                                onBlur={handleBlur}
+                              >
+                                {tiposCreditosPeriodicidad.map((el) => (
+                                  <SelectItem key={el.key}>
+                                    {el.label}
+                                  </SelectItem>
+                                ))}
+                              </Select>
+                            </section>
+                          </>
+                        )}
+                        {values.tipoCredito === 'A_PLAZO' && (
+                          <>
+                            <section className='col-span-1 md:col-span-2'>
+                              <Input
+                                label='Descripción'
+                                labelPlacement='outside'
+                                type='text'
+                                name='plazoDescripcion'
+                                variant='bordered'
+                                value={values.plazoDescripcion}
+                                isInvalid={errors.plazoDescripcion && touched.plazoDescripcion}
+                                color={errors.plazoDescripcion && touched.plazoDescripcion ? 'danger' : ''}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                errorMessage={errors.plazoDescripcion && touched.plazoDescripcion ? errors.plazoDescripcion : ''}
+                                placeholder='Ej: Plazo a 30 días...'
+                              />
+                            </section>
+                          </>
+                        )}
+                      </section>
+                    )}
                     <section>
                       <h1 className='font-bold text-secondary'>DETALLES DE FACTURACIÓN</h1>
                       <Divider className="mt-4" />
@@ -824,7 +938,7 @@ function FacturaCreate() {
                             <Button color='danger' variant='light' onPress={onClose}>
                               Cerrar
                             </Button>
-                            <Button color='success' variant='solid' onPress={() => { onClose();handleSubmit() }}>
+                            <Button color='success' variant='solid' onPress={() => { onClose(); handleSubmit() }}>
                               Sí, emitir la factura
                             </Button>
                           </ModalFooter>

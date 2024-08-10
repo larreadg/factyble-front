@@ -75,4 +75,42 @@ export const tiposIdentificacionesNoDomiciliado = [
     },
 ]
 
+export const tiposCreditos = [
+    {
+        key: 'CUOTA',
+        label: 'CUOTA'
+    },
+    {
+        key: 'A_PLAZO',
+        label: 'A PLAZO'
+    },
+]
+
+export const tiposCreditosPeriodicidad = [
+    {
+        key: 'SEMANAL',
+        label: 'SEMANAL'
+    },
+    {
+        key: 'QUINCENAL',
+        label: 'QUINCENAL'
+    },
+    {
+        key: 'MENSUAL',
+        label: 'MENSUAL'
+    },
+    {
+        key: 'TRIMESTRAL',
+        label: 'TRIMESTRAL'
+    },
+    {
+        key: 'SEMESTRAL',
+        label: 'SEMESTRAL'
+    },
+    {
+        key: 'ANUAL',
+        label: 'ANUAL'
+    },
+]
+
 export const itemsPorPagina = 10
