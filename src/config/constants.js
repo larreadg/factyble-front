@@ -1,4 +1,4 @@
-export const apiUrl = 'http://localhost:8000'
+export const apiUrl = 'http://216.225.192.54:12100'
 export const appVersion = 'v1.0.0'
 export const toastStyle = {
     borderRadius: '0.5rem',

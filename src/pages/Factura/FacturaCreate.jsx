@@ -88,8 +88,9 @@ function FacturaCreate() {
     { label: 'Emitir factura', link: null }
   ]
 
-  const buscarRuc = (situacionTributaria, setFieldValue) => {
+  const buscarRuc = (situacionTributaria, setFieldValue, setFieldTouched) => {
     if (search) {
+      clearSearchFields(setFieldValue, setFieldTouched)
       setSearchLoading(true)
       axiosInstance
         .get(`${apiUrl}/buscar?ruc=${search}&situacionTributaria=${situacionTributaria}`)
@@ -100,24 +101,27 @@ function FacturaCreate() {
             if (data !== null) {
 
               if (situacionTributaria === 'CONTRIBUYENTE') {
-                const { ruc, razon_social: razonSocial } = data
+                const { ruc, razon_social: razonSocial, email } = data
                 setFieldValue('ruc', ruc)
                 setFieldValue('razonSocial', razonSocial)
                 setFieldValue('tipoIdentificacion', 'RUC')
+                email !== null && setFieldValue('email', email)
               } else if (situacionTributaria === 'NO_CONTRIBUYENTE') {
 
-                const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion } = data
+                const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion, email } = data
                 setFieldValue('nombres', nombres)
                 setFieldValue('apellidos', apellidos)
                 setFieldValue('identificacion', documento)
                 setFieldValue('tipoIdentificacion', tipoIdentificacion)
+                email !== null && setFieldValue('email', email)
 
               } else {
-                const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion } = data
+                const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion, email } = data
                 setFieldValue('nombres', nombres)
                 setFieldValue('apellidos', apellidos)
                 setFieldValue('identificacion', documento)
                 setFieldValue('tipoIdentificacion', tipoIdentificacion)
+                email !== null && setFieldValue('email', email)
               }
               toast.success('Datos encontrados', { style: toastStyle })
 
@@ -132,6 +136,15 @@ function FacturaCreate() {
           toast.error('Datos no encontrados', { style: toastStyle })
         })
     }
+  }
+
+  const clearSearchFields = (setFieldValue, setFieldTouched, clearInput = false) => {                    
+    const attrs = ['ruc', 'razonSocial', 'nombres', 'apellidos', 'identificacion', 'tipoIdentificacion']
+    for(let attr of attrs){
+      setFieldValue(attr, '') 
+      setFieldTouched(attr, false)
+    }
+    clearInput && setSearch('') 
   }
 
   return (
@@ -240,7 +253,7 @@ function FacturaCreate() {
                             type='button'
                             loading={searchLoading}
                             className='w-full sm:w-1/4'
-                            onClick={() => buscarRuc('CONTRIBUYENTE', setFieldValue)}
+                            onClick={() => buscarRuc('CONTRIBUYENTE', setFieldValue, setFieldTouched)}
                             isLoading={searchLoading}>
                             Buscar
                           </Button>
@@ -248,7 +261,7 @@ function FacturaCreate() {
                             color='default'
                             type='button'
                             className='w-full sm:w-1/4'
-                            onClick={() => { setFieldValue('ruc', ''); setFieldValue('razonSocial', ''); setFieldTouched('ruc', false); setFieldTouched('razonSocial', false); setSearch('') }}>
+                            onClick={() => { clearSearchFields(setFieldValue, setFieldTouched, true) }}>
                             Limpiar
                           </Button>
                         </section>
@@ -338,7 +351,7 @@ function FacturaCreate() {
                             type='button'
                             loading={searchLoading}
                             className='w-full sm:w-1/4'
-                            onClick={() => buscarRuc('NO_CONTRIBUYENTE', setFieldValue)}
+                            onClick={() => buscarRuc('NO_CONTRIBUYENTE', setFieldValue, setFieldTouched)}
                             isLoading={searchLoading}>
                             Buscar
                           </Button>
@@ -346,14 +359,7 @@ function FacturaCreate() {
                             color='default'
                             type='button'
                             className='w-full sm:w-1/4'
-                            onClick={() => {                    
-                              const attrs = ['ruc', 'razonSocial', 'nombres', 'apellidos', 'identificacion', 'tipoIdentificacion']
-                              for(let attr of attrs){
-                                setFieldValue(attr, '') 
-                                setFieldTouched(attr, false)
-                              }
-                              setSearch('') 
-                            }}
+                            onClick={() => { clearSearchFields(setFieldValue, setFieldTouched, true) }}
                             >
                             Limpiar
                           </Button>
@@ -478,7 +484,7 @@ function FacturaCreate() {
                             type='button'
                             loading={searchLoading}
                             className='w-full sm:w-1/4'
-                            onClick={() => buscarRuc('NO_DOMICILIADO', setFieldValue)}
+                            onClick={() => buscarRuc('NO_DOMICILIADO', setFieldValue, setFieldTouched)}
                             isLoading={searchLoading}>
                             Buscar
                           </Button>
@@ -486,14 +492,8 @@ function FacturaCreate() {
                             color='default'
                             type='button'
                             className='w-full sm:w-1/4'
-                            onClick={() => {                    
-                              const attrs = ['ruc', 'razonSocial', 'nombres', 'apellidos', 'identificacion', 'tipoIdentificacion']
-                              for(let attr of attrs){
-                                setFieldValue(attr, '') 
-                                setFieldTouched(attr, false)
-                              }
-                              setSearch('') 
-                            }}>
+                            onClick={() => { clearSearchFields(setFieldValue, setFieldTouched, true) }}
+                          >
                             Limpiar
                           </Button>
                         </section>

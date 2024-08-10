@@ -2,18 +2,14 @@ import { Card, CardBody } from '@nextui-org/react'
 import CustomBreadcrumbs from '../../components/CustomBreadcrumbs'
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Spinner, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from '@nextui-org/react'
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react'
-import { Chip } from '@nextui-org/chip'
 import { Pagination } from '@nextui-org/pagination'
 import { apiUrl, itemsPorPagina, toastStyle } from '../../config/constants'
 import { useEffect, useState } from 'react'
 import axiosInstance from '../../services/axiosInstance'
 import { SearchIcon } from '../../icons/SearchIcon'
 import { UserIcon } from '../../icons/UserIcon'
-import { ClockIcon } from '../../icons/ClockIcon'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import { CheckIcon } from '../../icons/CheckIcon'
-import { CloseIcon } from '../../icons/CloseIcon'
 import { LinkIcon } from '../../icons/LinkIcon'
 import { EyeFilledIcon } from '../../icons/EyeFilledIcon'
 import { Tooltip } from '@nextui-org/tooltip'
@@ -22,6 +18,7 @@ import { cancelarDocumentoValidationSchema, reenviarEmailValidationSchema } from
 import toast, { Toaster } from 'react-hot-toast'
 import { Formik } from 'formik'
 import { NoSymbolIcon } from '../../icons/NoSymbolIcon'
+import EstadoChip from '../../components/EstadoChip'
 dayjs.extend(utc)
 
 function DocumentoList() {
@@ -37,6 +34,7 @@ function DocumentoList() {
   const [data, setData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [itemsPerPage, setItemsPerPage] = useState(itemsPorPagina)
+  const [reloadPage, setReloadPage] = useState(false)
   const { isOpen: isOpenModalInfo, onOpen: onOpenModalInfo, onOpenChange: onOpenChangeModalInfo } = useDisclosure()
   const { isOpen: isOpenModalReenviar, onOpen: onOpenModalReenviar, onOpenChange: onOpenChangeModalReenviar } = useDisclosure()
   const { isOpen: isOpenModalCancelar, onOpen: onOpenModalCancelar, onOpenChange: onOpenChangeModalCancelar } = useDisclosure()
@@ -66,7 +64,7 @@ function DocumentoList() {
     }
 
     fetchData()
-  }, [page, filter, itemsPerPage])
+  }, [page, filter, itemsPerPage, reloadPage])
 
   return (
     <main className='w-full lg:w-3/4 lg:mx-auto'>
@@ -193,46 +191,7 @@ function DocumentoList() {
                       </TableCell>
                       <TableCell>
                         <section className='flex items-center gap-2'>
-                          {item.sifen_estado === null && (
-                            <Chip
-                              startContent={<ClockIcon className='size-4' />}
-                              variant='solid'
-                              color='default'
-                              size='sm'
-                            >
-                              Pendiente
-                            </Chip>
-                          )}
-                          {item.sifen_estado === 'Aprobado' && (
-                            <Chip
-                              startContent={<CheckIcon className='size-4' />}
-                              variant='solid'
-                              color='success'
-                              size='sm'
-                            >
-                              Aprobado
-                            </Chip>
-                          )}
-                          {item.sifen_estado === 'Rechazado' && (
-                            <Chip
-                              startContent={<CloseIcon className='size-4' />}
-                              variant='solid'
-                              color='danger'
-                              size='sm'
-                            >
-                              Rechazado
-                            </Chip>
-                          )}
-                          {item.sifen_estado === 'Anulado' && (
-                            <Chip
-                              startContent={<NoSymbolIcon className='size-4' />}
-                              variant='solid'
-                              color='danger'
-                              size='sm'
-                            >
-                              Anulado
-                            </Chip>
-                          )}
+                          <EstadoChip estado={item.sifen_estado} />
                         </section>
                       </TableCell>
                     </TableRow>
@@ -252,58 +211,24 @@ function DocumentoList() {
               <ModalBody>
                 <section className='flex flex-col gap-2 font-poppins'>
                   <section className='flex items-center gap-2'>
-                    {modalInfoItem.sifen_estado === null && (
-                      <Chip
-                        startContent={<ClockIcon className='size-4' />}
-                        variant='solid'
-                        color='default'
-                        size='sm'
-                      >
-                        Pendiente
-                      </Chip>
-                    )}
-                    {modalInfoItem.sifen_estado === 'Aprobado' && (
-                      <Chip
-                        startContent={<CheckIcon className='size-4' />}
-                        variant='solid'
-                        color='success'
-                        size='sm'
-                      >
-                        Aprobado
-                      </Chip>
-                    )}
-                    {modalInfoItem.sifen_estado === 'Rechazado' && (
-                      <Chip
-                        startContent={<CloseIcon className='size-4' />}
-                        variant='solid'
-                        color='danger'
-                        size='sm'
-                      >
-                        Rechazado
-                      </Chip>
-                    )}
+                    <EstadoChip estado={modalInfoItem.sifen_estado} />
                   </section>
 
-                  {modalInfoItem.sifen_estado === 'Rechazado' ? (
-                    <>
-                      <p className='text-xs text-danger'>{modalInfoItem.sifen_estado_mensaje}</p>
-                    </>
-                  ) : (
-                    <>
-                      <section className='flex items-center gap-2'>
-                        <section className='w-1/4 text-xs text-default-900 font-bold'>CDC</section>
-                        <section className='w-3/4 text-xs text-default-900'>{modalInfoItem.cdc}</section>
-                      </section>
-                      <section className='flex items-center gap-2'>
-                        <section className='w-1/4 text-xs text-default-900 font-bold'>KUDE</section>
-                        <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${modalInfoItem.factura_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${modalInfoItem.factura_uuid}.pdf`}</a>
-                      </section>
-                      <section className='flex items-center gap-2'>
-                        <section className='w-1/4 text-xs text-default-900 font-bold'>XML</section>
-                        <a className='text-xs text-primary underline truncate w-3/4' href={modalInfoItem.xml} target='_blank'>{modalInfoItem.xml}</a>
-                      </section>
-                    </>
+                  {['Rechazado', 'Cancelado'].includes(modalInfoItem.sifen_estado) && (
+                    <p className='text-xs text-danger'>{modalInfoItem.sifen_estado_mensaje}</p>
                   )}
+                  <section className='flex items-center gap-2'>
+                    <section className='w-1/4 text-xs text-default-900 font-bold'>CDC</section>
+                    <section className='w-3/4 text-xs text-default-900'>{modalInfoItem.cdc}</section>
+                  </section>
+                  <section className='flex items-center gap-2'>
+                    <section className='w-1/4 text-xs text-default-900 font-bold'>KUDE</section>
+                    <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${modalInfoItem.factura_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${modalInfoItem.factura_uuid}.pdf`}</a>
+                  </section>
+                  <section className='flex items-center gap-2'>
+                    <section className='w-1/4 text-xs text-default-900 font-bold'>XML</section>
+                    <a className='text-xs text-primary underline truncate w-3/4' href={modalInfoItem.xml} target='_blank'>{modalInfoItem.xml}</a>
+                  </section>
                 </section>
               </ModalBody>
               <ModalFooter>
@@ -419,18 +344,24 @@ function DocumentoList() {
                     facturaId: modalCancelarItem.id
                   })
                     .then(() => {
-                      toast.success('Documento reenviado', {
+                      toast.success('El documento fue cancelado', {
                         style: toastStyle
                       });
                       setSubmitting(false);
-                      onClose(); // Cerrar modal después de enviar el formulario con éxito
+                      onClose()
+                      setReloadPage(prev => !prev)
                     })
                     .catch(error => {
-                      toast.error('Error al reenviar documento', {
+                      let msg = 'No se puede cancelar el documento'
+                      const { response } = error
+
+                      if (response.data && response.data.message) {
+                        msg = response.data.message
+                      }
+                      toast.error(msg, {
                         style: toastStyle
                       });
-                      console.log(error);
-                      setSubmitting(false);
+                      setSubmitting(false)
                     });
                 }}
               >
@@ -451,59 +382,21 @@ function DocumentoList() {
                     <ModalBody>
                       <section className='flex flex-col gap-2 font-poppins'>
                         <section className='flex items-center gap-2'>
-                          {modalCancelarItem.sifen_estado === null && (
-                            <Chip
-                              startContent={<ClockIcon className='size-4' />}
-                              variant='solid'
-                              color='default'
-                              size='sm'
-                            >
-                              Pendiente
-                            </Chip>
-                          )}
-                          {modalCancelarItem.sifen_estado === 'Aprobado' && (
-                            <Chip
-                              startContent={<CheckIcon className='size-4' />}
-                              variant='solid'
-                              color='success'
-                              size='sm'
-                            >
-                              Aprobado
-                            </Chip>
-                          )}
-                          {modalCancelarItem.sifen_estado === 'Rechazado' && (
-                            <Chip
-                              startContent={<CloseIcon className='size-4' />}
-                              variant='solid'
-                              color='danger'
-                              size='sm'
-                            >
-                              Rechazado
-                            </Chip>
-                          )}
+                          <EstadoChip estado={modalCancelarItem.sifen_estado} />
                         </section>
-
-                        {modalCancelarItem.sifen_estado === 'Rechazado' ? (
-                          <>
-                            <p className='text-xs text-danger'>{modalCancelarItem.sifen_estado_mensaje}</p>
-                          </>
-                        ) : (
-                          <>
-                            <section className='flex items-center gap-2'>
-                              <section className='w-1/4 text-xs text-default-900 font-bold'>CDC</section>
-                              <section className='w-3/4 text-xs text-default-900'>{modalCancelarItem.cdc}</section>
-                            </section>
-                            <section className='flex items-center gap-2'>
-                              <section className='w-1/4 text-xs text-default-900 font-bold'>KUDE</section>
-                              <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${modalCancelarItem.factura_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${modalCancelarItem.factura_uuid}.pdf`}</a>
-                            </section>
-                            <section className='flex items-center gap-2'>
-                              <section className='w-1/4 text-xs text-default-900 font-bold'>XML</section>
-                              <a className='text-xs text-primary underline truncate w-3/4' href={modalCancelarItem.xml} target='_blank'>{modalCancelarItem.xml}</a>
-                            </section>
-                            <p className='my-2 text-center font-poppins text-danger'>¿Estás seguro? Esta acción no puede deshacerse.</p>
-                          </>
-                        )}
+                        <section className='flex items-center gap-2'>
+                          <section className='w-1/4 text-xs text-default-900 font-bold'>CDC</section>
+                          <section className='w-3/4 text-xs text-default-900'>{modalCancelarItem.cdc}</section>
+                        </section>
+                        <section className='flex items-center gap-2'>
+                          <section className='w-1/4 text-xs text-default-900 font-bold'>KUDE</section>
+                          <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${modalCancelarItem.factura_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${modalCancelarItem.factura_uuid}.pdf`}</a>
+                        </section>
+                        <section className='flex items-center gap-2'>
+                          <section className='w-1/4 text-xs text-default-900 font-bold'>XML</section>
+                          <a className='text-xs text-primary underline truncate w-3/4' href={modalCancelarItem.xml} target='_blank'>{modalCancelarItem.xml}</a>
+                        </section>
+                        <p className='my-2 text-center font-poppins text-danger'>¿Estás seguro? Esta acción no puede deshacerse.</p>
                       </section>
                       <section className='flex flex-col gap-2'>
                         <form className='space-y-4 flex flex-col gap-2'>
