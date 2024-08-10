@@ -1,4 +1,5 @@
 export const apiUrl = 'http://localhost:8000'
+export const appVersion = 'v1.0.0'
 export const toastStyle = {
     borderRadius: '0.5rem',
     background: '#070a0f',
@@ -7,14 +8,17 @@ export const toastStyle = {
 export const itemsPerPage = 10
 export const situacionesTributarias = [
     {
+         key: 'CONTRIBUYENTE',
         label: 'CONTRIBUYENTE'
     },
     {
+         key: 'NO_CONTRIBUYENTE',
         label: 'NO CONTRIBUYENTE'
     },
-    {
-        label: 'NO DOMICILIADO'
-    },
+    // {
+    //      key: 'NO_DOMICILIADO',
+    //     label: 'NO DOMICILIADO'
+    // },
 ]
 export const condicionesVenta = [
     {

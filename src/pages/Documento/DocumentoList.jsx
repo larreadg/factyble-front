@@ -18,7 +18,7 @@ import { LinkIcon } from '../../icons/LinkIcon'
 import { EyeFilledIcon } from '../../icons/EyeFilledIcon'
 import { Tooltip } from '@nextui-org/tooltip'
 import { MailIcon } from '../../icons/MailIcon'
-import { reenviarEmailValidationSchema } from '../../formValidations/documentoList'
+import { cancelarDocumentoValidationSchema, reenviarEmailValidationSchema } from '../../formValidations/documentoList'
 import toast, { Toaster } from 'react-hot-toast'
 import { Formik } from 'formik'
 import { NoSymbolIcon } from '../../icons/NoSymbolIcon'
@@ -158,7 +158,7 @@ function DocumentoList() {
                             </Tooltip>
                           )}
 
-                          {dayjs.utc(item.fecha_creacion).add(72, 'hour').isAfter(dayjs.utc()) && item.sifen_estado === 'Aprobado' && (
+                          {dayjs.utc(item.fecha_creacion).add(48, 'hour').isAfter(dayjs.utc()) && item.sifen_estado === 'Aprobado' && (
                             <Tooltip content="Anular documento" key='anular-documento' aria-describedby='Anular documento'>
                               <Button size="sm" aria-label='Anular documento' isIconOnly color='danger' onClick={() => {
                                 setModalCancelarItem(item)
@@ -180,7 +180,7 @@ function DocumentoList() {
                           </section>
                         </a>
                       </TableCell>
-                      <TableCell><p className='text-xs'>{dayjs.utc(item.fecha_creacion).format('DD/MM/YYYY HH:mm:ss')}</p></TableCell>
+                      <TableCell><p className='text-xs'>{dayjs(item.fecha_creacion).format('DD/MM/YYYY HH:mm:ss')}</p></TableCell>
                       <TableCell>
                         <section className='flex items-center gap-2'>
                           <UserIcon className='text-primary w-6 h-auto' />
@@ -250,7 +250,7 @@ function DocumentoList() {
             <>
               <ModalHeader className='flex flex-col gap-1 text-default-900'>Doc. Nro: {modalInfoItem.numero_factura}</ModalHeader>
               <ModalBody>
-                <section className='flex flex-col gap-2'>
+                <section className='flex flex-col gap-2 font-poppins'>
                   <section className='flex items-center gap-2'>
                     {modalInfoItem.sifen_estado === null && (
                       <Chip
@@ -351,13 +351,14 @@ function DocumentoList() {
                   handleBlur,
                   handleSubmit,
                   isSubmitting,
+                  isValid
                 }) => (
                   <>
                     <ModalHeader className='flex flex-col gap-1 text-default-900'>
-                      Doc. Nro: {modalReenviarItem.numero_factura}
+                      Reenviar Doc. Nro: {modalReenviarItem.numero_factura}
                     </ModalHeader>
                     <ModalBody>
-                      <section className='flex flex-col gap-2'>
+                      <section className='flex flex-col gap-2 font-poppins'>
                         <form className='space-y-4 flex flex-col gap-2'>
                           <section>
                             <Input
@@ -388,7 +389,7 @@ function DocumentoList() {
                       </Button>
                       <Button
                         color='primary'
-                        isDisabled={isSubmitting}
+                        isDisabled={!isValid}
                         type='submit'
                         isLoading={isSubmitting}
                         onPress={handleSubmit}
@@ -409,79 +410,146 @@ function DocumentoList() {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex flex-col gap-1 text-default-900'>Doc. Nro: {modalCancelarItem.numero_factura}</ModalHeader>
-              <ModalBody>
-                <section className='flex flex-col gap-2'>
-                  <section className='flex items-center gap-2'>
-                    {modalCancelarItem.sifen_estado === null && (
-                      <Chip
-                        startContent={<ClockIcon className='size-4' />}
-                        variant='solid'
-                        color='default'
-                        size='sm'
-                      >
-                        Pendiente
-                      </Chip>
-                    )}
-                    {modalCancelarItem.sifen_estado === 'Aprobado' && (
-                      <Chip
-                        startContent={<CheckIcon className='size-4' />}
-                        variant='solid'
-                        color='success'
-                        size='sm'
-                      >
-                        Aprobado
-                      </Chip>
-                    )}
-                    {modalCancelarItem.sifen_estado === 'Rechazado' && (
-                      <Chip
-                        startContent={<CloseIcon className='size-4' />}
-                        variant='solid'
-                        color='danger'
-                        size='sm'
-                      >
-                        Rechazado
-                      </Chip>
-                    )}
-                  </section>
+              <Formik
+                initialValues={{ motivo: '' }}
+                validationSchema={cancelarDocumentoValidationSchema}
+                onSubmit={(values, { setSubmitting }) => {
+                  axiosInstance.post(`${apiUrl}/factura/reenviar`, {
+                    motivo: values.motivo,
+                    facturaId: modalCancelarItem.id
+                  })
+                    .then(() => {
+                      toast.success('Documento reenviado', {
+                        style: toastStyle
+                      });
+                      setSubmitting(false);
+                      onClose(); // Cerrar modal después de enviar el formulario con éxito
+                    })
+                    .catch(error => {
+                      toast.error('Error al reenviar documento', {
+                        style: toastStyle
+                      });
+                      console.log(error);
+                      setSubmitting(false);
+                    });
+                }}
+              >
+                {({
+                  values,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  isSubmitting,
+                  isValid
+                }) => (
+                  <>
+                    <ModalHeader className='flex flex-col gap-1 text-default-900'>
+                      Cancelación Doc. Nro: {modalCancelarItem.numero_factura}
+                    </ModalHeader>
+                    <ModalBody>
+                      <section className='flex flex-col gap-2 font-poppins'>
+                        <section className='flex items-center gap-2'>
+                          {modalCancelarItem.sifen_estado === null && (
+                            <Chip
+                              startContent={<ClockIcon className='size-4' />}
+                              variant='solid'
+                              color='default'
+                              size='sm'
+                            >
+                              Pendiente
+                            </Chip>
+                          )}
+                          {modalCancelarItem.sifen_estado === 'Aprobado' && (
+                            <Chip
+                              startContent={<CheckIcon className='size-4' />}
+                              variant='solid'
+                              color='success'
+                              size='sm'
+                            >
+                              Aprobado
+                            </Chip>
+                          )}
+                          {modalCancelarItem.sifen_estado === 'Rechazado' && (
+                            <Chip
+                              startContent={<CloseIcon className='size-4' />}
+                              variant='solid'
+                              color='danger'
+                              size='sm'
+                            >
+                              Rechazado
+                            </Chip>
+                          )}
+                        </section>
 
-                  {modalCancelarItem.sifen_estado === 'Rechazado' ? (
-                    <>
-                      <p className='text-xs text-danger'>{modalCancelarItem.sifen_estado_mensaje}</p>
-                    </>
-                  ) : (
-                    <>
-                      <section className='flex items-center gap-2'>
-                        <section className='w-1/4 text-xs text-default-900 font-bold'>CDC</section>
-                        <section className='w-3/4 text-xs text-default-900'>{modalCancelarItem.cdc}</section>
+                        {modalCancelarItem.sifen_estado === 'Rechazado' ? (
+                          <>
+                            <p className='text-xs text-danger'>{modalCancelarItem.sifen_estado_mensaje}</p>
+                          </>
+                        ) : (
+                          <>
+                            <section className='flex items-center gap-2'>
+                              <section className='w-1/4 text-xs text-default-900 font-bold'>CDC</section>
+                              <section className='w-3/4 text-xs text-default-900'>{modalCancelarItem.cdc}</section>
+                            </section>
+                            <section className='flex items-center gap-2'>
+                              <section className='w-1/4 text-xs text-default-900 font-bold'>KUDE</section>
+                              <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${modalCancelarItem.factura_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${modalCancelarItem.factura_uuid}.pdf`}</a>
+                            </section>
+                            <section className='flex items-center gap-2'>
+                              <section className='w-1/4 text-xs text-default-900 font-bold'>XML</section>
+                              <a className='text-xs text-primary underline truncate w-3/4' href={modalCancelarItem.xml} target='_blank'>{modalCancelarItem.xml}</a>
+                            </section>
+                            <p className='my-2 text-center font-poppins text-danger'>¿Estás seguro? Esta acción no puede deshacerse.</p>
+                          </>
+                        )}
                       </section>
-                      <section className='flex items-center gap-2'>
-                        <section className='w-1/4 text-xs text-default-900 font-bold'>KUDE</section>
-                        <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${modalCancelarItem.factura_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${modalCancelarItem.factura_uuid}.pdf`}</a>
+                      <section className='flex flex-col gap-2'>
+                        <form className='space-y-4 flex flex-col gap-2'>
+                          <section>
+                            <Input
+                              key='outside'
+                              label='Motivo'
+                              labelPlacement='outside'
+                              type='text'
+                              name='motivo'
+                              variant='bordered'
+                              isInvalid={errors && errors.motivo && touched.motivo}
+                              color={errors && errors.motivo && touched.motivo ? 'danger' : ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.motivo}
+                              errorMessage={errors.motivo}
+                              placeholder='Motivo de cancelación...'
+                            />
+                          </section>
+                        </form>
                       </section>
-                      <section className='flex items-center gap-2'>
-                        <section className='w-1/4 text-xs text-default-900 font-bold'>XML</section>
-                        <a className='text-xs text-primary underline truncate w-3/4' href={modalCancelarItem.xml} target='_blank'>{modalCancelarItem.xml}</a>
-                      </section>
-                    </>
-                  )}
-                  <section>
-                    <p className='text-center text-default-900 py-4'>¿Desea anular el documento?</p>
-                  </section>
-                </section>
-              </ModalBody>
-              <ModalFooter>
-                <Button color='danger' variant='light' onPress={onClose}>
-                  Cerrar
-                </Button>
-                <Button color='danger' variant='solid' onPress={onClose}>
-                  Sí, anular el documento
-                </Button>
-              </ModalFooter>
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button color='danger' variant='light' onPress={onClose}>
+                        Cerrar
+                      </Button>
+                      <Button
+                        color='danger'
+                        isDisabled={!isValid}
+                        type='submit'
+                        isLoading={isSubmitting}
+                        onPress={handleSubmit}
+                      >
+                        Sí, cancelar documento
+                      </Button>
+                    </ModalFooter>
+                    <Toaster />
+                  </>
+                )}
+              </Formik>
+
             </>
           )}
         </ModalContent>
-      </Modal>
+      </Modal >
     </main >
   )
 }

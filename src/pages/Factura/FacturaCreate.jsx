@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@nextui-org/button'
 import { Divider } from '@nextui-org/divider'
 import { Card, CardBody } from '@nextui-org/react'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Input } from '@nextui-org/input'
 import { Formik, FieldArray, useFormikContext } from 'formik'
@@ -14,6 +15,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import CustomBreadcrumbs from '../../components/CustomBreadcrumbs'
 import PropTypes from 'prop-types'
 import axiosInstance from '../../services/axiosInstance'
+import Loader from '../../components/Loader'
 
 function FacturaInputTotalGeneral({ label, labelPlacement, name, value, variant, className, readOnly }) {
 
@@ -81,7 +83,7 @@ function FacturaCreate() {
   const [search, setSearch] = useState('')
   const [validationSchema, setValidationSchema] = useState(facturaCreateValidationSchemaContribuyente)
   const [searchLoading, setSearchLoading] = useState(false)
-
+  const { isOpen: isOpenConfirmarCreacion, onOpen: onOpenConfirmarCreacion, onOpenChange: onOpenChangeConfirmarCreacion } = useDisclosure()
   const breadcrumbs = [
     { label: 'Inicio', link: '/' },
     { label: 'Emitir factura', link: null }
@@ -121,14 +123,14 @@ function FacturaCreate() {
               toast.success('Datos encontrados', { style: toastStyle })
 
             } else {
-              toast.error('Error al buscar datos', { style: toastStyle })
+              toast.error('Datos no encontrados', { style: toastStyle })
             }
           }
         })
         .catch((error) => {
           setSearchLoading(false)
-          console.error('Error fetching data:', error)
-          toast.error('Error al buscar datos', { style: toastStyle })
+          console.error('Datos no encontrados:', error)
+          toast.error('Datos no encontrados', { style: toastStyle })
         })
     }
   }
@@ -161,14 +163,21 @@ function FacturaCreate() {
                 ]
               }}
               validationSchema={validationSchema}
-              onSubmit={(values, { setSubmitting }) => {
+              onSubmit={(values, { setSubmitting, resetForm }) => {
+
+                if (values.situacionTributaria === 'NO_CONTRIBUYENTE') {
+                  values.razonSocial = `${values.apellidos}, ${values.nombres}`
+                  values.ruc = values.identificacion
+                }
                 axiosInstance.post(`${apiUrl}/factura`, { ...values })
                   .then(() => {
-                    toast.success('Factura creada', { style: toastStyle })
+                    toast.success('Factura emitida', { style: toastStyle, duration: 5000 })
                     setSubmitting(false)
+                    resetForm()
+                    setSearch('')
                   })
-                  .catch(() => {
-                    toast.error('Error al crear factura', { style: toastStyle })
+                  .catch((error) => {
+                    toast.error(`Error al crear factura ${error.message ?? ''}`, { style: toastStyle, duration: 5000 })
                     setSubmitting(false)
                   })
               }}
@@ -181,7 +190,9 @@ function FacturaCreate() {
                 handleBlur,
                 handleSubmit,
                 setFieldValue,
+                setFieldTouched,
                 isSubmitting,
+                isValid
               }) => (
                 <form onSubmit={handleSubmit}>
                   <section className='grid grid-cols-1 gap-4'>
@@ -204,7 +215,7 @@ function FacturaCreate() {
                             case 'CONTRIBUYENTE':
                               setValidationSchema(facturaCreateValidationSchemaContribuyente)
                               break
-                            case 'NO CONTRIBUYENTE':
+                            case 'NO_CONTRIBUYENTE':
                               setValidationSchema(facturaCreateValidationSchemaNoContribuyente)
                               break
                             default:
@@ -215,7 +226,7 @@ function FacturaCreate() {
                         onBlur={handleBlur}
                       >
                         {situacionesTributarias.map((el) => (
-                          <SelectItem key={el.label}>
+                          <SelectItem key={el.key}>
                             {el.label}
                           </SelectItem>
                         ))}
@@ -239,10 +250,17 @@ function FacturaCreate() {
                             disabled={searchLoading}
                             type='button'
                             loading={searchLoading}
-                            className='w-full lg:w-auto'
+                            className='w-full sm:w-1/4'
                             onClick={() => buscarRuc('CONTRIBUYENTE', setFieldValue)}
                             isLoading={searchLoading}>
                             Buscar
+                          </Button>
+                          <Button
+                            color='default'
+                            type='button'
+                            className='w-full sm:w-1/4'
+                            onClick={() => { setFieldValue('ruc', ''); setFieldValue('razonSocial', ''); setFieldTouched('ruc', false); setFieldTouched('razonSocial', false); setSearch('') }}>
+                            Limpiar
                           </Button>
                         </section>
                         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -260,8 +278,6 @@ function FacturaCreate() {
                               value={values.razonSocial}
                               errorMessage={errors.razonSocial && touched.razonSocial ? errors.razonSocial : ''}
                               placeholder='Razón Social...'
-                              className='read-only'
-                              readOnly
                             />
                           </section>
                           <section className='col-span-1 md:col-span-1'>
@@ -278,8 +294,6 @@ function FacturaCreate() {
                               value={values.ruc}
                               errorMessage={errors.ruc && touched.ruc ? errors.ruc : ''}
                               placeholder='RUC...'
-                              className='read-only'
-                              readOnly
                             />
                           </section>
                         </section>
@@ -317,7 +331,7 @@ function FacturaCreate() {
                         </section>
                       </>
                     )}
-                    {values.situacionTributaria === 'NO CONTRIBUYENTE' && (
+                    {values.situacionTributaria === 'NO_CONTRIBUYENTE' && (
                       <>
                         <section className='flex flex-col sm:flex-row items-end gap-2'>
                           <Input
@@ -334,10 +348,17 @@ function FacturaCreate() {
                             disabled={searchLoading}
                             type='button'
                             loading={searchLoading}
-                            className='w-full lg:w-auto'
+                            className='w-full sm:w-1/4'
                             onClick={() => buscarRuc('NO_CONTRIBUYENTE', setFieldValue)}
                             isLoading={searchLoading}>
                             Buscar
+                          </Button>
+                          <Button
+                            color='default'
+                            type='button'
+                            className='w-full sm:w-1/4'
+                            onClick={() => { setFieldValue('ruc', ''); setFieldValue('razonSocial', ''); setFieldTouched('ruc', false); setFieldTouched('razonSocial', false); setSearch('') }}>
+                            Limpiar
                           </Button>
                         </section>
                         <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -459,10 +480,17 @@ function FacturaCreate() {
                             disabled={searchLoading}
                             type='button'
                             loading={searchLoading}
-                            className='w-full lg:w-auto'
+                            className='w-full sm:w-1/4'
                             onClick={() => buscarRuc('NO_DOMICILIADO', setFieldValue)}
                             isLoading={searchLoading}>
                             Buscar
+                          </Button>
+                          <Button
+                            color='default'
+                            type='button'
+                            className='w-full sm:w-1/4'
+                            onClick={() => { setFieldValue('ruc', ''); setFieldValue('razonSocial', ''); setFieldTouched('ruc', false); setFieldTouched('razonSocial', false); setSearch('') }}>
+                            Limpiar
                           </Button>
                         </section>
                         <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -774,15 +802,36 @@ function FacturaCreate() {
                       <Button
                         size='lg'
                         color='primary'
-                        disabled={isSubmitting}
-                        type='submit'
-                        loading={isSubmitting}
+                        type='button'
                         className='w-full lg:w-1/3'
+                        onPress={onOpenConfirmarCreacion}
+                        isDisabled={!isValid}
                       >
                         Emitir Factura
                       </Button>
                     </section>
                   </section>
+                  {isSubmitting && <Loader />}
+                  <Modal isOpen={isOpenConfirmarCreacion} onOpenChange={onOpenChangeConfirmarCreacion} isDismissable={false} isKeyboardDismissDisabled={true}>
+                    <ModalContent>
+                      {(onClose) => (
+                        <>
+                          <ModalHeader className='flex flex-col gap-1 text-default-900'>Emisión de factura</ModalHeader>
+                          <ModalBody>
+                            <p className='text-default-900'>¿Estás seguro de esta acción?</p>
+                          </ModalBody>
+                          <ModalFooter>
+                            <Button color='danger' variant='light' onPress={onClose}>
+                              Cerrar
+                            </Button>
+                            <Button color='success' variant='solid' onPress={() => { onClose();handleSubmit() }}>
+                              Sí, emitir la factura
+                            </Button>
+                          </ModalFooter>
+                        </>
+                      )}
+                    </ModalContent>
+                  </Modal>
                 </form>
               )}
             </Formik>

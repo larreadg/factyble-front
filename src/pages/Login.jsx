@@ -79,12 +79,12 @@ function Login(){
                                     type='email'
                                     name='email'
                                     variant='bordered'
-                                    isInvalid={errors && errors.email && touched}
-                                    color={errors && errors.email && touched ? 'danger' : ''}
+                                    isInvalid={errors.email && touched.email}
+                                    color={errors.email && touched.email ? 'danger' : ''}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     value={values.email}
-                                    errorMessage={errors.email}
+                                    errorMessage={errors.email && touched.email ? errors.email : ''}
                                     placeholder='Email'
                                     startContent={
                                         <MailIcon className='text-2xl text-default-400 pointer-events-none flex-shrink-0' />
@@ -99,12 +99,12 @@ function Login(){
                                     type={isVisible ? 'text' : 'password'}
                                     name='password'
                                     variant='bordered'
-                                    isInvalid={errors && errors.password}
-                                    color={errors && errors.password ? 'danger' : ''}
+                                    isInvalid={errors.password && touched.password}
+                                    color={errors.password && touched.password ? 'danger' : ''}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     value={values.password}
-                                    errorMessage={errors.password}
+                                    errorMessage={errors.password && touched.password ? errors.password : ''}
                                     placeholder='Password'
                                     startContent={
                                         <LockClosedIcon className='text-2xl text-default-400 pointer-events-none flex-shrink-0' />
@@ -127,12 +127,12 @@ function Login(){
                                 <Input
                                     name='captcha'
                                     variant='bordered'
-                                    isInvalid={errors && errors.captcha}
-                                    color={errors && errors.captcha ? 'danger' : ''}
+                                    isInvalid={errors.captcha && touched.captcha}
+                                    color={errors.captcha && touched.captcha ? 'danger' : ''}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     value={values.captcha}
-                                    errorMessage={errors.captcha}
+                                    errorMessage={errors.captcha && touched.captcha ? errors.captcha : ''}
                                     placeholder='Captcha...'
                                 />
                             </section>
