@@ -6,7 +6,7 @@ import { appVersion } from './config/constants';
 function App() {
 
   useEffect(() => {
-    document.title = `Factyble ${appVersion}`
+    document.title = `eFactura ${appVersion}`
   }, [])
 
   return (
