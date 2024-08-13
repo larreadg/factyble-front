@@ -129,7 +129,7 @@ export const facturaCreateValidationSchema = Yup.object().shape({
         const { condicionVenta, tipoCredito } = this.parent;
         return condicionVenta !== 'CREDITO' || tipoCredito !== 'A_PLAZO' || !!value;
       }
-    ),
+    ).max(15, 'La descripción del plazo no debe exceder los 15 caracteres'),
   
   // Validación del array de items
   items: Yup.array().of(facturaDetalleValidationSchema).min(1, 'Debe haber al menos un item'),
