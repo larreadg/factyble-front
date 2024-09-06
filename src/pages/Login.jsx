@@ -38,7 +38,7 @@ function Login(){
                     initialValues={{ email: '', password: '', captcha: '' }}
                     validationSchema={loginValidationSchema}
                     onSubmit={(values, { setSubmitting }) => {
-                        axios.post(`${apiUrl}/usuario-realm/authenticate`, {
+                        axios.post(`${apiUrl}/usuario/authenticate`, {
                             usuario: values.email,
                             password: values.password,
                             captcha: values.captcha

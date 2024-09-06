@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@nextui-org/button'
 import { Divider } from '@nextui-org/divider'
 import { Card, CardBody } from '@nextui-org/react'
@@ -17,8 +17,12 @@ import axiosInstance from '../../services/axiosInstance'
 import Loader from '../../components/Loader'
 import FacturaInputTotalGeneral from './FacturaCreateInputTotalGeneral'
 import FacturaInputTotalGeneralIva from './FacturaCreateInputTotalGeneralIva'
+import FacturaCreateSelectCajaEstablecimiento from './FacturaCreateSelectCajaEstablecimiento'
+import { jwtDecode } from 'jwt-decode'
 
 function FacturaCreate() {
+  const [user, setUser] = useState(null)
+  const [list, setList] = useState([])
   const [search, setSearch] = useState('')
   const [searchLoading, setSearchLoading] = useState(false)
   const { isOpen: isOpenConfirmarCreacion, onOpen: onOpenConfirmarCreacion, onOpenChange: onOpenChangeConfirmarCreacion } = useDisclosure()
@@ -77,14 +81,42 @@ function FacturaCreate() {
     }
   }
 
-  const clearSearchFields = (setFieldValue, setFieldTouched, clearInput = false) => {                    
+  const clearSearchFields = (setFieldValue, setFieldTouched, clearInput = false) => {
     const attrs = ['ruc', 'razonSocial', 'nombres', 'apellidos', 'identificacion', 'tipoIdentificacion']
-    for(let attr of attrs){
-      setFieldValue(attr, '') 
+    for (let attr of attrs) {
+      setFieldValue(attr, '')
       setFieldTouched(attr, false)
     }
-    clearInput && setSearch('') 
+    clearInput && setSearch('')
   }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get(`${apiUrl}/usuario/establecimientos-cajas`)
+        const { data: apiResult } = response
+
+        const dataList = apiResult.data
+        setList(dataList)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      try {
+        const decoded = jwtDecode(token)
+        setUser(decoded)
+      } catch (error) {
+        console.error('Error decoding token:', error)
+      }
+    }
+  }, [])
 
   return (
     <main className='w-full lg:w-3/4 lg:mx-auto'>
@@ -115,7 +147,9 @@ function FacturaCreate() {
                 plazoDescripcion: '',
                 items: [
                   { cantidad: 1, precioUnitario: 0, tasa: '10%', impuesto: 0, total: 0, descripcion: '' }
-                ]
+                ],
+                establecimiento: '',
+                caja: ''
               }}
               validationSchema={facturaCreateValidationSchema}
               onSubmit={(values, { setSubmitting, resetForm }) => {
@@ -151,6 +185,28 @@ function FacturaCreate() {
               }) => (
                 <form onSubmit={handleSubmit}>
                   <section className='grid grid-cols-1 gap-4'>
+
+                    {user && (
+                      <>
+                        <section>
+                          <h1 className='font-bold text-secondary'>EMPRESA</h1>
+                          <Divider className="mt-4" />
+                        </section>
+                        <section>
+                          <p className='text-secondary'>{user.empresaRuc}</p>
+                          <p className='text-primary'>{user.empresaNombre}</p>
+                        </section>
+                      </>
+                    )}
+                    <section>
+                      <h1 className='font-bold text-secondary'>PUNTO DE EMISIÓN</h1>
+                      <Divider className="mt-4" />
+                    </section>
+                    <section>
+                      <FacturaCreateSelectCajaEstablecimiento
+                        list={list}
+                        onBlur={handleBlur} />
+                    </section>
                     <section>
                       <h1 className='font-bold text-secondary'>DATOS DEL CLIENTE</h1>
                       <Divider className="mt-4" />
@@ -299,7 +355,7 @@ function FacturaCreate() {
                             type='button'
                             className='w-full sm:w-1/4'
                             onClick={() => { clearSearchFields(setFieldValue, setFieldTouched, true) }}
-                            >
+                          >
                             Limpiar
                           </Button>
                         </section>
