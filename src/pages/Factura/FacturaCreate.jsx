@@ -193,8 +193,8 @@ function FacturaCreate() {
                           <Divider className="mt-4" />
                         </section>
                         <section>
-                          <p className='text-secondary'>{user.empresaRuc}</p>
-                          <p className='text-primary'>{user.empresaNombre}</p>
+                          <p className='text-primary font-bold'>{user.empresaRuc}</p>
+                          <p>{user.empresaNombre}</p>
                         </section>
                       </>
                     )}
