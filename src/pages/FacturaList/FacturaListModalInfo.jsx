@@ -3,7 +3,7 @@ import { apiUrl } from '../../config/constants'
 import EstadoChip from '../../components/EstadoChip'
 import PropTypes from 'prop-types'
 
-function DocumentoListModalInfo({ isOpen, onOpenChange, item }) {
+function FacturaListModalInfo({ isOpen, onOpenChange, item }) {
     return (
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false} isKeyboardDismissDisabled={true}>
             <ModalContent>
@@ -51,10 +51,10 @@ function DocumentoListModalInfo({ isOpen, onOpenChange, item }) {
     )
 }
 
-DocumentoListModalInfo.propTypes = {
+FacturaListModalInfo.propTypes = {
     isOpen: PropTypes.func, 
     onOpenChange: PropTypes.func, 
     item: PropTypes.object
 }
 
-export default DocumentoListModalInfo
+export default FacturaListModalInfo

@@ -1,13 +1,13 @@
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input } from '@nextui-org/react'
 import { apiUrl, toastStyle } from '../../config/constants'
 import { Formik } from 'formik'
-import { reenviarEmailValidationSchema } from '../../formValidations/documentoList'
+import { reenviarEmailValidationSchema } from '../../formValidations/facturaList'
 import { MailIcon } from '../../icons/MailIcon'
 import axiosInstance from '../../services/axiosInstance'
 import PropTypes from 'prop-types'
 import toast from 'react-hot-toast'
 
-function DocumentoListModalReenviar({ isOpen, onOpenChange, item }) {
+function NotaCreditoListModalReenviar({ isOpen, onOpenChange, item }) {
     return (
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false} isKeyboardDismissDisabled={true}>
             <ModalContent>
@@ -102,10 +102,10 @@ function DocumentoListModalReenviar({ isOpen, onOpenChange, item }) {
     )
 }
 
-DocumentoListModalReenviar.propTypes = {
+NotaCreditoListModalReenviar.propTypes = {
     isOpen: PropTypes.func,
     onOpenChange: PropTypes.func,
     item: PropTypes.object
 }
 
-export default DocumentoListModalReenviar
+export default NotaCreditoListModalReenviar

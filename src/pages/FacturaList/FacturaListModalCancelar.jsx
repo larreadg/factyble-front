@@ -1,13 +1,13 @@
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input } from '@nextui-org/react'
 import { apiUrl, toastStyle } from '../../config/constants'
-import { cancelarDocumentoValidationSchema } from '../../formValidations/documentoList'
+import { cancelarDocumentoValidationSchema } from '../../formValidations/facturaList'
 import { Formik } from 'formik'
 import EstadoChip from '../../components/EstadoChip'
 import PropTypes from 'prop-types'
 import axiosInstance from '../../services/axiosInstance'
 import toast from 'react-hot-toast'
 
-function DocumentoListModalCancelar({ isOpen, onOpenChange, item, setReloadPage }) {
+function FacturaListModalCancelar({ isOpen, onOpenChange, item, setReloadPage }) {
     return (
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false} isKeyboardDismissDisabled={true}>
             <ModalContent>
@@ -130,11 +130,11 @@ function DocumentoListModalCancelar({ isOpen, onOpenChange, item, setReloadPage 
     )
 }
 
-DocumentoListModalCancelar.propTypes = {
+FacturaListModalCancelar.propTypes = {
     isOpen: PropTypes.func,
     onOpenChange: PropTypes.func,
     setReloadPage: PropTypes.func,
     item: PropTypes.object
 }
 
-export default DocumentoListModalCancelar
+export default FacturaListModalCancelar

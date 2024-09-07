@@ -3,7 +3,7 @@ import CustomBreadcrumbs from '../../components/CustomBreadcrumbs'
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Spinner, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from '@nextui-org/react'
 import { useDisclosure } from '@nextui-org/react'
 import { Pagination } from '@nextui-org/pagination'
-import { apiUrl, itemsPorPagina } from '../../config/constants'
+import { apiUrl, itemsPorPagina, toastStyle } from '../../config/constants'
 import { useEffect, useState } from 'react'
 import axiosInstance from '../../services/axiosInstance'
 import { SearchIcon } from '../../icons/SearchIcon'
@@ -16,17 +16,20 @@ import { Tooltip } from '@nextui-org/tooltip'
 import { MailIcon } from '../../icons/MailIcon'
 import { NoSymbolIcon } from '../../icons/NoSymbolIcon'
 import EstadoChip from '../../components/EstadoChip'
-import DocumentoListModalInfo from './DocumentoListModalInfo'
-import DocumentoListModalReenviar from './DocumentoListModalReenviar'
-import DocumentoListModalCancelar from './DocumentoListModalCancelar'
-import { Toaster } from 'react-hot-toast'
+import FacturaListModalInfo from './FacturaListModalInfo'
+import FacturaListModalReenviar from './FacturaListModalReenviar'
+import FacturaListModalCancelar from './FacturaListModalCancelar'
+import toast, { Toaster } from 'react-hot-toast'
+import { CopyIcon } from '../../icons/CopyIcon'
+import { copyToClipboard } from '../../utils/utils'
+
 dayjs.extend(utc)
 
-function DocumentoList() {
+function FacturaList() {
 
   const breadcrumbs = [
     { label: 'Inicio', link: '/' },
-    { label: 'Documentos emitidos', link: null }
+    { label: 'Facturas emitidas', link: null }
   ]
 
   const [page, setPage] = useState(1)
@@ -145,6 +148,18 @@ function DocumentoList() {
                               <EyeFilledIcon />
                             </Button>
                           </Tooltip>
+                          <Tooltip content="Copiar CDC" key='info-cdc' aria-describedby='Copiar CDC'>
+                            <Button size="sm" aria-label='Ver detalles' isIconOnly color='success' onClick={async() => {
+                              const result = await copyToClipboard(item.cdc)
+                              if(result) {
+                                toast.success('CDC copiado', {
+                                  style: toastStyle
+                                })
+                              }
+                            }}>
+                              <CopyIcon />
+                            </Button>
+                          </Tooltip>
 
                           {item.sifen_estado === 'Aprobado' && (
                             <Tooltip content="Reenviar documento" key='resend-email' aria-describedby='Reenviar documento'>
@@ -209,12 +224,12 @@ function DocumentoList() {
         </Card>
       </section>
 
-      <DocumentoListModalInfo isOpen={isOpenModalInfo} onOpenChange={onOpenChangeModalInfo} item={modalInfoItem}/>
-      <DocumentoListModalReenviar isOpen={isOpenModalReenviar} onOpenChange={onOpenChangeModalReenviar} item={modalReenviarItem} />
-      <DocumentoListModalCancelar isOpen={isOpenModalCancelar} onOpenChange={onOpenChangeModalCancelar} item={modalCancelarItem} setReloadPage={setReloadPage}/>
+      <FacturaListModalInfo isOpen={isOpenModalInfo} onOpenChange={onOpenChangeModalInfo} item={modalInfoItem}/>
+      <FacturaListModalReenviar isOpen={isOpenModalReenviar} onOpenChange={onOpenChangeModalReenviar} item={modalReenviarItem} />
+      <FacturaListModalCancelar isOpen={isOpenModalCancelar} onOpenChange={onOpenChangeModalCancelar} item={modalCancelarItem} setReloadPage={setReloadPage}/>
       <Toaster />
     </main >
   )
 }
 
-export default DocumentoList
+export default FacturaList
