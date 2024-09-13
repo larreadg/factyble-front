@@ -79,18 +79,14 @@ function NotaCreditoCreate() {
               validationSchema={notaCreditoCreateValidationSchema}
               onSubmit={(values, { setSubmitting, resetForm }) => {
 
-                if (values.situacionTributaria === 'NO_CONTRIBUYENTE') {
-                  values.razonSocial = `${values.apellidos}, ${values.nombres}`
-                  values.ruc = values.identificacion
-                }
-                axiosInstance.post(`${apiUrl}/factura`, { ...values })
+                axiosInstance.post(`${apiUrl}/nota-credito`, { ...values })
                   .then(() => {
-                    toast.success('Factura emitida', { style: toastStyle, duration: 5000 })
+                    toast.success('Nota de crédito emitida', { style: toastStyle, duration: 5000 })
                     setSubmitting(false)
                     resetForm()
                   })
                   .catch((error) => {
-                    toast.error(`Error al crear factura ${error.message ?? ''}`, { style: toastStyle, duration: 5000 })
+                    toast.error(`Error al crear nota de crédito ${error.message ?? ''}`, { style: toastStyle, duration: 5000 })
                     setSubmitting(false)
                   })
               }}
@@ -339,7 +335,7 @@ function NotaCreditoCreate() {
                         onPress={onOpenConfirmarCreacion}
                         isDisabled={!isValid}
                       >
-                        Emitir Factura
+                        Emitir nota de crédito
                       </Button>
                     </section>
                   </section>
@@ -348,7 +344,7 @@ function NotaCreditoCreate() {
                     <ModalContent>
                       {(onClose) => (
                         <>
-                          <ModalHeader className='flex flex-col gap-1 text-default-900'>Emisión de factura</ModalHeader>
+                          <ModalHeader className='flex flex-col gap-1 text-default-900'>Emisión de Nota de crédito</ModalHeader>
                           <ModalBody>
                             <p className='text-default-900'>¿Estás seguro de esta acción?</p>
                           </ModalBody>
@@ -357,7 +353,7 @@ function NotaCreditoCreate() {
                               Cerrar
                             </Button>
                             <Button color='success' variant='solid' onPress={() => { onClose(); handleSubmit() }}>
-                              Sí, emitir la factura
+                              Sí, emitir la nota de crédito
                             </Button>
                           </ModalFooter>
                         </>
