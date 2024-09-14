@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@nextui-org/button'
 import { Divider } from '@nextui-org/divider'
-import { Card, CardBody } from '@nextui-org/react'
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Card, CardBody, Textarea } from '@nextui-org/react'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Input } from '@nextui-org/input'
 import { Formik, FieldArray } from 'formik'
@@ -122,11 +121,12 @@ function NotaCreditoCreate() {
                       </>
                     )}
                     <section>
-                      <h1 className='font-bold text-secondary'>DOCUMENTO EMITIDO</h1>
+                      <h1 className='font-bold text-secondary'>FACTURA EMITIDA</h1>
                       <Divider className="mt-4" />
                     </section>
                     <section>
                       <Input
+                        isRequired
                         label='CDC'
                         labelPlacement='outside'
                         type='text'
@@ -138,7 +138,7 @@ function NotaCreditoCreate() {
                         onChange={handleChange}
                         onBlur={handleBlur}
                         errorMessage={errors.cdc && touched.cdc ? errors.cdc : ''}
-                        placeholder='Ingrese el CDC...'
+                        placeholder='Ingrese el CDC de la factura emitida...'
                       />
                     </section>
                     <section>
@@ -163,6 +163,7 @@ function NotaCreditoCreate() {
                                 <section className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2">
                                   <section>
                                     <Input
+                                      isRequired
                                       label='Cantidad'
                                       labelPlacement='outside'
                                       type='number'
@@ -186,6 +187,7 @@ function NotaCreditoCreate() {
                                   </section>
                                   <section>
                                     <Input
+                                      isRequired
                                       label='Precio Unitario'
                                       labelPlacement='outside'
                                       type='text'
@@ -208,6 +210,7 @@ function NotaCreditoCreate() {
                                   </section>
                                   <section>
                                     <Select
+                                      isRequired
                                       variant='bordered'
                                       labelPlacement='outside'
                                       label='Tasa'
@@ -257,7 +260,9 @@ function NotaCreditoCreate() {
                                     />
                                   </section>
                                   <section className="col-span-1 sm:col-span-3 md:col-span-5">
-                                    <Input
+                                    <Textarea
+                                      isRequired
+                                      placeholder='Descripción del producto o servicio...'
                                       label='Descripción'
                                       labelPlacement='outside'
                                       type='text'

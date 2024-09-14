@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@nextui-org/button'
 import { Divider } from '@nextui-org/divider'
-import { Card, CardBody } from '@nextui-org/react'
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Card, CardBody, Textarea } from '@nextui-org/react'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Input } from '@nextui-org/input'
 import { Formik, FieldArray } from 'formik'
@@ -218,6 +217,7 @@ function FacturaCreate() {
                     </section>
                     <section>
                       <Select
+                        isRequired
                         variant='bordered'
                         labelPlacement='outside'
                         label='Situación tributaria'
@@ -268,6 +268,7 @@ function FacturaCreate() {
                         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <section className='col-span-1 md:col-span-2'>
                             <Input
+                              isRequired
                               label='Razón Social'
                               labelPlacement='outside'
                               type='text'
@@ -284,6 +285,7 @@ function FacturaCreate() {
                           </section>
                           <section className='col-span-1 md:col-span-1'>
                             <Input
+                              isRequired
                               label='RUC'
                               labelPlacement='outside'
                               type='text'
@@ -317,6 +319,7 @@ function FacturaCreate() {
                         </section>
                         <section>
                           <Input
+                            isRequired
                             label='Email'
                             labelPlacement='outside'
                             type='email'
@@ -367,6 +370,7 @@ function FacturaCreate() {
                         <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <section className='col-span-1 md:col-span-1'>
                             <Input
+                              isRequired
                               label='Nombres'
                               labelPlacement='outside'
                               type='text'
@@ -383,6 +387,7 @@ function FacturaCreate() {
                           </section>
                           <section className='col-span-1 md:col-span-1'>
                             <Input
+                              isRequired
                               label='Apellidos'
                               labelPlacement='outside'
                               type='text'
@@ -399,6 +404,7 @@ function FacturaCreate() {
                           </section>
                           <section className='col-span-1 md:col-span-1'>
                             <Input
+                              isRequired
                               label='Identificación'
                               labelPlacement='outside'
                               type='number'
@@ -415,6 +421,7 @@ function FacturaCreate() {
                           </section>
                           <section className='col-span-1 md:col-span-1'>
                             <Select
+                              isRequired
                               variant='bordered'
                               labelPlacement='outside'
                               label='Tipo Identificación'
@@ -450,6 +457,7 @@ function FacturaCreate() {
                         </section>
                         <section>
                           <Input
+                            isRequired
                             label='Email'
                             labelPlacement='outside'
                             type='email'
@@ -605,6 +613,7 @@ function FacturaCreate() {
                     </section>
                     <section>
                       <Select
+                        isRequired
                         variant='bordered'
                         labelPlacement='outside'
                         label='Condición de venta'
@@ -625,6 +634,7 @@ function FacturaCreate() {
                       <section className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                         <section>
                           <Select
+                            isRequired
                             variant='bordered'
                             labelPlacement='outside'
                             label='Tipo Crédito'
@@ -645,6 +655,7 @@ function FacturaCreate() {
                           <>
                             <section>
                               <Input
+                                isRequired
                                 label='Cantidad cuotas'
                                 labelPlacement='outside'
                                 type='number'
@@ -661,6 +672,7 @@ function FacturaCreate() {
                             </section>
                             <section>
                               <Select
+                                isRequired
                                 variant='bordered'
                                 labelPlacement='outside'
                                 label='Periodicidad'
@@ -683,6 +695,7 @@ function FacturaCreate() {
                           <>
                             <section className='col-span-1 md:col-span-2'>
                               <Input
+                                isRequired
                                 label='Descripción (hasta 15 caracteres)'
                                 labelPlacement='outside'
                                 type='text'
@@ -714,6 +727,7 @@ function FacturaCreate() {
                                 <section className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2">
                                   <section>
                                     <Input
+                                      isRequired
                                       label='Cantidad'
                                       labelPlacement='outside'
                                       type='number'
@@ -737,6 +751,7 @@ function FacturaCreate() {
                                   </section>
                                   <section>
                                     <Input
+                                      isRequired
                                       label='Precio Unitario'
                                       labelPlacement='outside'
                                       type='text'
@@ -759,6 +774,7 @@ function FacturaCreate() {
                                   </section>
                                   <section>
                                     <Select
+                                      isRequired
                                       variant='bordered'
                                       labelPlacement='outside'
                                       label='Tasa'
@@ -808,7 +824,9 @@ function FacturaCreate() {
                                     />
                                   </section>
                                   <section className="col-span-1 sm:col-span-3 md:col-span-5">
-                                    <Input
+                                    <Textarea
+                                      isRequired
+                                      placeholder='Descripción del producto o servicio...'
                                       label='Descripción'
                                       labelPlacement='outside'
                                       type='text'

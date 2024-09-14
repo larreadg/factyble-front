@@ -20,6 +20,7 @@ function NotaCreditoCreateSelectCajaEstablecimiento({ handleBlur, list }) {
 
     return (
         <Select
+            isRequired
             variant='bordered'
             labelPlacement='outside'
             label='Establecimiento & Caja'
