@@ -17,11 +17,9 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           <ul>
             {
               sidebarItems.map(el => (
-                <>
-                  <li className="mb-2 hover:bg-blue-700 hover:rounded-sm">
-                    <Link to={el.route} className="block p-2 text-sm" onClick={() => setIsSidebarOpen(false)}>{el.title}</Link>
-                  </li>
-                </>
+                <li className="mb-2 hover:bg-blue-700 hover:rounded-sm" key={el.key}>
+                  <Link to={el.route} className="block p-2 text-sm" onClick={() => setIsSidebarOpen(false)}>{el.title}</Link>
+                </li>
               ))
             }
           </ul>

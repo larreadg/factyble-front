@@ -52,7 +52,7 @@ function NotaCreditoListModalInfo({ isOpen, onOpenChange, item }) {
 }
 
 NotaCreditoListModalInfo.propTypes = {
-    isOpen: PropTypes.func, 
+    isOpen: PropTypes.bool,
     onOpenChange: PropTypes.func, 
     item: PropTypes.object
 }

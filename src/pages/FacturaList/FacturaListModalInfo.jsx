@@ -52,7 +52,7 @@ function FacturaListModalInfo({ isOpen, onOpenChange, item }) {
 }
 
 FacturaListModalInfo.propTypes = {
-    isOpen: PropTypes.func, 
+    isOpen: PropTypes.bool,
     onOpenChange: PropTypes.func, 
     item: PropTypes.object
 }

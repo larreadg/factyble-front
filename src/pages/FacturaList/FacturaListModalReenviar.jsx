@@ -103,7 +103,7 @@ function FacturaListModalReenviar({ isOpen, onOpenChange, item }) {
 }
 
 FacturaListModalReenviar.propTypes = {
-    isOpen: PropTypes.func,
+    isOpen: PropTypes.bool,
     onOpenChange: PropTypes.func,
     item: PropTypes.object
 }

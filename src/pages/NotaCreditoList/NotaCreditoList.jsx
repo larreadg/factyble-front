@@ -81,7 +81,7 @@ function NotaCreditoList() {
               <Input
                 className='mb-4'
                 type='text'
-                placeholder='Buscar...'
+                placeholder='Ingrese nro. de factura o CDC de la factura...'
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 clearable
@@ -127,7 +127,7 @@ function NotaCreditoList() {
                   <TableColumn>Acciones</TableColumn>
                   <TableColumn>Nro. Nota Crédito</TableColumn>
                   <TableColumn>Creado el</TableColumn>
-                  <TableColumn>CDC Factura</TableColumn>
+                  <TableColumn>Nro. Factura</TableColumn>
                   <TableColumn>Estado</TableColumn>
                 </TableHeader>
                 <TableBody
@@ -199,7 +199,16 @@ function NotaCreditoList() {
                         )}
                       </TableCell>
                       <TableCell><p className='text-xs'>{dayjs(item.fecha_creacion).format('DD/MM/YYYY HH:mm:ss')}</p></TableCell>
-                      <TableCell><p className='text-xs'>{item.factura.cdc}</p></TableCell>
+                      <TableCell>
+                          <a href={`${apiUrl}/public/${item.factura.factura_uuid}.pdf`} target='_blank' className='text-xs text-primary cursor-pointer hover:underline'>
+                            <section className='flex items-center gap-1'>
+                              <LinkIcon />
+                              <span>
+                                {item.factura.numero_factura}
+                              </span>
+                            </section>
+                          </a>
+                      </TableCell>
                       <TableCell>
                         <section className='flex items-center gap-2'>
                           <EstadoChip estado={item.sifen_estado} />

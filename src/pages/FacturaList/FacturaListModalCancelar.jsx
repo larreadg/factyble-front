@@ -131,7 +131,7 @@ function FacturaListModalCancelar({ isOpen, onOpenChange, item, setReloadPage })
 }
 
 FacturaListModalCancelar.propTypes = {
-    isOpen: PropTypes.func,
+    isOpen: PropTypes.bool,
     onOpenChange: PropTypes.func,
     setReloadPage: PropTypes.func,
     item: PropTypes.object

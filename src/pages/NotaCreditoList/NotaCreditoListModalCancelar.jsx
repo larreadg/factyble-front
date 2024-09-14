@@ -131,7 +131,7 @@ function NotaCreditoListModalCancelar({ isOpen, onOpenChange, item, setReloadPag
 }
 
 NotaCreditoListModalCancelar.propTypes = {
-    isOpen: PropTypes.func,
+    isOpen: PropTypes.bool,
     onOpenChange: PropTypes.func,
     setReloadPage: PropTypes.func,
     item: PropTypes.object

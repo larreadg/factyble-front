@@ -86,7 +86,12 @@ function NotaCreditoCreate() {
                     resetForm()
                   })
                   .catch((error) => {
-                    toast.error(`Error al crear nota de crédito ${error.message ?? ''}`, { style: toastStyle, duration: 5000 })
+                    let errorMsg = error.message || `Error al crear nota de crédito`
+                    if(error && error.response){
+                      const { data: { message } } = error.response
+                      errorMsg = message
+                    }
+                    toast.error(errorMsg, { style: toastStyle, duration: 5000 })
                     setSubmitting(false)
                   })
               }}

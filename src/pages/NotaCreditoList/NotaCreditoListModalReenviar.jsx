@@ -103,7 +103,7 @@ function NotaCreditoListModalReenviar({ isOpen, onOpenChange, item }) {
 }
 
 NotaCreditoListModalReenviar.propTypes = {
-    isOpen: PropTypes.func,
+    isOpen: PropTypes.bool,
     onOpenChange: PropTypes.func,
     item: PropTypes.object
 }
