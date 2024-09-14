@@ -55,7 +55,7 @@ function FacturaListModalCancelar({ isOpen, onOpenChange, item, setReloadPage })
                             }) => (
                                 <>
                                     <ModalHeader className='flex flex-col gap-1 text-default-900'>
-                                        Cancelación Doc. Nro: {item.numero_factura}
+                                        Cancelación Factura Nro: {item.numero_factura}
                                     </ModalHeader>
                                     <ModalBody>
                                         <section className='flex flex-col gap-2 font-poppins'>

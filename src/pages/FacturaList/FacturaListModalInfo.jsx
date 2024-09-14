@@ -9,7 +9,7 @@ function FacturaListModalInfo({ isOpen, onOpenChange, item }) {
             <ModalContent>
                 {(onClose) => (
                     <>
-                        <ModalHeader className='flex flex-col gap-1 text-default-900'>Doc. Nro: {item.numero_factura}</ModalHeader>
+                        <ModalHeader className='flex flex-col gap-1 text-default-900'>Factura Nro: {item.numero_factura}</ModalHeader>
                         <ModalBody>
                             <section className='flex flex-col gap-2 font-poppins'>
                                 <section className='flex items-center gap-2'>

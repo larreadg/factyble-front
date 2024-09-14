@@ -126,7 +126,7 @@ function FacturaList() {
               >
                 <TableHeader>
                   <TableColumn>Acciones</TableColumn>
-                  <TableColumn>Nro. Documento</TableColumn>
+                  <TableColumn>Nro. Factura</TableColumn>
                   <TableColumn>Creado el</TableColumn>
                   <TableColumn>Cliente</TableColumn>
                   <TableColumn>Estado</TableColumn>
@@ -162,8 +162,8 @@ function FacturaList() {
                           </Tooltip>
 
                           {item.sifen_estado === 'Aprobado' && (
-                            <Tooltip content="Reenviar documento" key='resend-email' aria-describedby='Reenviar documento'>
-                              <Button size="sm" aria-label='Reenviar documento' isIconOnly color='secondary' onClick={() => {
+                            <Tooltip content="Reenviar factura" key='resend-email' aria-describedby='Reenviar factura'>
+                              <Button size="sm" aria-label='Reenviar factura' isIconOnly color='secondary' onClick={() => {
                                 setModalReenviarItem(item)
                                 onOpenModalReenviar()
                               }}>
@@ -173,8 +173,8 @@ function FacturaList() {
                           )}
 
                           {dayjs.utc(item.fecha_creacion).add(48, 'hour').isAfter(dayjs.utc()) && item.sifen_estado === 'Aprobado' && (
-                            <Tooltip content="Anular documento" key='anular-documento' aria-describedby='Anular documento'>
-                              <Button size="sm" aria-label='Anular documento' isIconOnly color='danger' onClick={() => {
+                            <Tooltip content="Anular factura" key='anular-factura' aria-describedby='Anular factura'>
+                              <Button size="sm" aria-label='Anular factura' isIconOnly color='danger' onClick={() => {
                                 setModalCancelarItem(item)
                                 onOpenModalCancelar()
                               }}>

@@ -49,7 +49,7 @@ function NotaCreditoListModalReenviar({ isOpen, onOpenChange, item }) {
                             }) => (
                                 <>
                                     <ModalHeader className='flex flex-col gap-1 text-default-900'>
-                                        Reenviar Doc. Nro: {item.numero_factura}
+                                        Reenviar Nota de Crédito Nro: {item.numero_nota_credito}
                                     </ModalHeader>
                                     <ModalBody>
                                         <section className='flex flex-col gap-2 font-poppins'>
@@ -88,7 +88,7 @@ function NotaCreditoListModalReenviar({ isOpen, onOpenChange, item }) {
                                             isLoading={isSubmitting}
                                             onPress={handleSubmit}
                                         >
-                                            Reenviar documento
+                                            Reenviar nota de crédito
                                         </Button>
                                     </ModalFooter>
                                 </>

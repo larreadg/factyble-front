@@ -22,7 +22,7 @@ function NotaCreditoListModalCancelar({ isOpen, onOpenChange, item, setReloadPag
                                     facturaId: item.id
                                 })
                                     .then(() => {
-                                        toast.success('El documento fue cancelado', {
+                                        toast.success('El nota de crédito fue cancelado', {
                                             style: toastStyle
                                         });
                                         setSubmitting(false);
@@ -30,7 +30,7 @@ function NotaCreditoListModalCancelar({ isOpen, onOpenChange, item, setReloadPag
                                         setReloadPage(prev => !prev)
                                     })
                                     .catch(error => {
-                                        let msg = 'No se puede cancelar el documento'
+                                        let msg = 'No se puede cancelar la nota de crédito'
                                         const { response } = error
 
                                         if (response.data && response.data.message) {
@@ -55,7 +55,7 @@ function NotaCreditoListModalCancelar({ isOpen, onOpenChange, item, setReloadPag
                             }) => (
                                 <>
                                     <ModalHeader className='flex flex-col gap-1 text-default-900'>
-                                        Cancelación Doc. Nro: {item.numero_factura}
+                                        Cancelación Nota de Crédito Nro: {item.numero_nota_credito}
                                     </ModalHeader>
                                     <ModalBody>
                                         <section className='flex flex-col gap-2 font-poppins'>
@@ -69,7 +69,7 @@ function NotaCreditoListModalCancelar({ isOpen, onOpenChange, item, setReloadPag
                                             {['Pendiente', 'Aprobado'].includes(item.sifen_estado) && (
                                                 <section className='flex items-center gap-2'>
                                                     <section className='w-1/4 text-xs text-default-900 font-bold'>KUDE</section>
-                                                    <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${item.factura_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${item.factura_uuid}.pdf`}</a>
+                                                    <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${item.nota_credito_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${item.nota_credito_uuid}.pdf`}</a>
                                                 </section>
                                             )}
                                             <section className='flex items-center gap-2'>
@@ -115,7 +115,7 @@ function NotaCreditoListModalCancelar({ isOpen, onOpenChange, item, setReloadPag
                                             isLoading={isSubmitting}
                                             onPress={handleSubmit}
                                         >
-                                            Sí, cancelar documento
+                                            Sí, cancelar nota de crédito
                                         </Button>
                                     </ModalFooter>
 

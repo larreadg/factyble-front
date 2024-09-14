@@ -7,7 +7,6 @@ import { apiUrl, itemsPorPagina, toastStyle } from '../../config/constants'
 import { useEffect, useState } from 'react'
 import axiosInstance from '../../services/axiosInstance'
 import { SearchIcon } from '../../icons/SearchIcon'
-import { UserIcon } from '../../icons/UserIcon'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { LinkIcon } from '../../icons/LinkIcon'
@@ -54,7 +53,7 @@ function NotaCreditoList() {
     const fetchData = async () => {
       setIsLoading(true)
       try {
-        const response = await axiosInstance.get(`${apiUrl}/factura?page=${page}&itemsPerPage=${itemsPerPage}&filter=${filter}`)
+        const response = await axiosInstance.get(`${apiUrl}/nota-credito?page=${page}&itemsPerPage=${itemsPerPage}&filter=${filter}`)
         const { data: apiResult } = response
 
         setPages(apiResult.data.totalItems ? Math.ceil(apiResult.data.totalItems / itemsPerPage) : 0)
@@ -126,9 +125,9 @@ function NotaCreditoList() {
               >
                 <TableHeader>
                   <TableColumn>Acciones</TableColumn>
-                  <TableColumn>Nro. Documento</TableColumn>
+                  <TableColumn>Nro. Nota Crédito</TableColumn>
                   <TableColumn>Creado el</TableColumn>
-                  <TableColumn>Cliente</TableColumn>
+                  <TableColumn>CDC Factura</TableColumn>
                   <TableColumn>Estado</TableColumn>
                 </TableHeader>
                 <TableBody
@@ -162,8 +161,8 @@ function NotaCreditoList() {
                           </Tooltip>
 
                           {item.sifen_estado === 'Aprobado' && (
-                            <Tooltip content="Reenviar documento" key='resend-email' aria-describedby='Reenviar documento'>
-                              <Button size="sm" aria-label='Reenviar documento' isIconOnly color='secondary' onClick={() => {
+                            <Tooltip content="Reenviar nota de crédito" key='resend-email' aria-describedby='Reenviar nota de crédito'>
+                              <Button size="sm" aria-label='Reenviar nota de crédito' isIconOnly color='secondary' onClick={() => {
                                 setModalReenviarItem(item)
                                 onOpenModalReenviar()
                               }}>
@@ -173,8 +172,8 @@ function NotaCreditoList() {
                           )}
 
                           {dayjs.utc(item.fecha_creacion).add(48, 'hour').isAfter(dayjs.utc()) && item.sifen_estado === 'Aprobado' && (
-                            <Tooltip content="Anular documento" key='anular-documento' aria-describedby='Anular documento'>
-                              <Button size="sm" aria-label='Anular documento' isIconOnly color='danger' onClick={() => {
+                            <Tooltip content="Anular nota de crédito" key='anular-documento' aria-describedby='Anular nota de crédito'>
+                              <Button size="sm" aria-label='Anular nota de crédito' isIconOnly color='danger' onClick={() => {
                                 setModalCancelarItem(item)
                                 onOpenModalCancelar()
                               }}>
@@ -189,27 +188,18 @@ function NotaCreditoList() {
                           <p className='text-default-500'>N/A</p>
                         )}
                         {['Pendiente', 'Aprobado'].includes(item.sifen_estado) && (
-                          <a href={`${apiUrl}/public/${item.factura_uuid}.pdf`} target='_blank' className='text-xs text-primary cursor-pointer hover:underline'>
+                          <a href={`${apiUrl}/public/${item.nota_credito_uuid}.pdf`} target='_blank' className='text-xs text-primary cursor-pointer hover:underline'>
                             <section className='flex items-center gap-1'>
                               <LinkIcon />
                               <span>
-                                {item.numero_factura}
+                                {item.numero_nota_credito}
                               </span>
                             </section>
                           </a>
                         )}
                       </TableCell>
                       <TableCell><p className='text-xs'>{dayjs(item.fecha_creacion).format('DD/MM/YYYY HH:mm:ss')}</p></TableCell>
-                      <TableCell>
-                        <section className='flex items-center gap-2'>
-                          <UserIcon className='text-primary w-6 h-auto' />
-                          <section className='flex flex-col gap-1'>
-                            <p className='text-primary text-xs'>{item.cliente_empresa.cliente.tipo_identificacion} | {item.cliente_empresa.cliente.ruc ?? item.cliente_empresa.cliente.documento}</p>
-                            <p className='text-xs'> {item.cliente_empresa.cliente.razon_social ?? `${item.cliente_empresa.cliente.nombres} ${item.cliente_empresa.cliente.apellidos}`}</p>
-                            <a className='text-xs text-primary' href={`mailto:${item.cliente_empresa.cliente.email}`}>{item.cliente_empresa.cliente.email}</a>
-                          </section>
-                        </section>
-                      </TableCell>
+                      <TableCell><p className='text-xs'>{item.factura.cdc}</p></TableCell>
                       <TableCell>
                         <section className='flex items-center gap-2'>
                           <EstadoChip estado={item.sifen_estado} />

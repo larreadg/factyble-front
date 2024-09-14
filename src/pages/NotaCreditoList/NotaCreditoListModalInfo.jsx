@@ -9,7 +9,7 @@ function NotaCreditoListModalInfo({ isOpen, onOpenChange, item }) {
             <ModalContent>
                 {(onClose) => (
                     <>
-                        <ModalHeader className='flex flex-col gap-1 text-default-900'>Doc. Nro: {item.numero_factura}</ModalHeader>
+                        <ModalHeader className='flex flex-col gap-1 text-default-900'>Nota de Crédito Nro: {item.numero_nota_credito}</ModalHeader>
                         <ModalBody>
                             <section className='flex flex-col gap-2 font-poppins'>
                                 <section className='flex items-center gap-2'>
@@ -26,7 +26,7 @@ function NotaCreditoListModalInfo({ isOpen, onOpenChange, item }) {
                                 {['Pendiente', 'Aprobado'].includes(item.sifen_estado) && (
                                     <section className='flex items-center gap-2'>
                                         <section className='w-1/4 text-xs text-default-900 font-bold'>KUDE</section>
-                                        <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${item.factura_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${item.factura_uuid}.pdf`}</a>
+                                        <a className='text-xs text-primary underline truncate w-3/4' href={`${apiUrl}/public/${item.nota_credito_uuid}.pdf`} target='_blank'>{`${apiUrl}/public/${item.nota_credito_uuid}.pdf`}</a>
                                     </section>
                                 )}
                                 <section className='flex items-center gap-2'>

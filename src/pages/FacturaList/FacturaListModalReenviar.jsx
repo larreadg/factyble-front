@@ -49,7 +49,7 @@ function FacturaListModalReenviar({ isOpen, onOpenChange, item }) {
                             }) => (
                                 <>
                                     <ModalHeader className='flex flex-col gap-1 text-default-900'>
-                                        Reenviar Doc. Nro: {item.numero_factura}
+                                        Reenviar Factura Nro: {item.numero_factura}
                                     </ModalHeader>
                                     <ModalBody>
                                         <section className='flex flex-col gap-2 font-poppins'>
@@ -88,7 +88,7 @@ function FacturaListModalReenviar({ isOpen, onOpenChange, item }) {
                                             isLoading={isSubmitting}
                                             onPress={handleSubmit}
                                         >
-                                            Reenviar documento
+                                            Reenviar factura
                                         </Button>
                                     </ModalFooter>
                                 </>
