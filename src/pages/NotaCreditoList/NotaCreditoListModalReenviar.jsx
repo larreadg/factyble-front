@@ -17,19 +17,19 @@ function NotaCreditoListModalReenviar({ isOpen, onOpenChange, item }) {
                             initialValues={{ email: '' }}
                             validationSchema={reenviarEmailValidationSchema}
                             onSubmit={(values, { setSubmitting }) => {
-                                axiosInstance.post(`${apiUrl}/factura/reenviar`, {
+                                axiosInstance.post(`${apiUrl}/nota-credito/reenviar`, {
                                     email: values.email,
-                                    facturaId: item.id
+                                    notaDeCreditoId: item.id
                                 })
                                     .then(() => {
-                                        toast.success('Documento reenviado', {
+                                        toast.success('Nota de crédito reenviada', {
                                             style: toastStyle
                                         });
                                         setSubmitting(false);
                                         onClose(); // Cerrar modal después de enviar el formulario con éxito
                                     })
                                     .catch(error => {
-                                        toast.error('Error al reenviar documento', {
+                                        toast.error('Error al reenviar nota de crédito', {
                                             style: toastStyle
                                         });
                                         console.log(error);

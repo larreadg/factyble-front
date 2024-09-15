@@ -17,12 +17,12 @@ function NotaCreditoListModalCancelar({ isOpen, onOpenChange, item, setReloadPag
                             initialValues={{ motivo: '' }}
                             validationSchema={cancelarDocumentoValidationSchema}
                             onSubmit={(values, { setSubmitting }) => {
-                                axiosInstance.post(`${apiUrl}/factura/cancelar`, {
+                                axiosInstance.post(`${apiUrl}/nota-credito/cancelar`, {
                                     motivo: values.motivo,
-                                    facturaId: item.id
+                                    notaDeCreditoId: item.id
                                 })
                                     .then(() => {
-                                        toast.success('El nota de crédito fue cancelado', {
+                                        toast.success('La nota de crédito fue cancelada', {
                                             style: toastStyle
                                         });
                                         setSubmitting(false);
