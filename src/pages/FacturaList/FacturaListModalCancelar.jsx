@@ -30,15 +30,12 @@ function FacturaListModalCancelar({ isOpen, onOpenChange, item, setReloadPage })
                                         setReloadPage(prev => !prev)
                                     })
                                     .catch(error => {
-                                        let msg = 'No se puede cancelar el documento'
-                                        const { response } = error
-
-                                        if (response.data && response.data.message) {
-                                            msg = response.data.message
+                                        let errorMsg = error.message || `Error al cancelar factura`
+                                        if(error && error.response){
+                                        const { data: { message } } = error.response
+                                        errorMsg = message
                                         }
-                                        toast.error(msg, {
-                                            style: toastStyle
-                                        });
+                                        toast.error(errorMsg, { style: toastStyle, duration: 5000 })
                                         setSubmitting(false)
                                     });
                             }}
