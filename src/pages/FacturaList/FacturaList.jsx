@@ -185,10 +185,10 @@ function FacturaList() {
                         </section>
                       </TableCell>
                       <TableCell>
-                        {['Rechazado', 'Cancelado'].includes(item.sifen_estado) && (
+                        {['Rechazado'].includes(item.sifen_estado) && (
                           <p className='text-default-500'>N/A</p>
                         )}
-                        {['Pendiente', 'Aprobado'].includes(item.sifen_estado) && (
+                        {['Pendiente', 'Aprobado', 'Cancelado'].includes(item.sifen_estado) && (
                           <a href={`${apiUrl}/public/${item.factura_uuid}.pdf`} target='_blank' className='text-xs text-primary cursor-pointer hover:underline'>
                             <section className='flex items-center gap-1'>
                               <LinkIcon />

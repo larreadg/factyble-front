@@ -43,12 +43,12 @@ export const facturaCreateValidationSchema = Yup.object().shape({
       }
     ),
   
-  // Validaciones para no contribuyentes o no domiciliados
+  // Validaciones para NO CONTRIBUYENTE o NO DOMICILIADO
   nombres: Yup.string()
     .nullable()
     .test(
       'nombres-required',
-      'Nombres es obligatorio cuando la situación tributaria es no contribuyente o no domiciliado',
+      'Nombres es obligatorio cuando la situación tributaria es NO CONTRIBUYENTE o NO DOMICILIADO',
       function (value) {
         const { situacionTributaria } = this.parent;
         return situacionTributaria === 'CONTRIBUYENTE' || !!value;
@@ -58,7 +58,7 @@ export const facturaCreateValidationSchema = Yup.object().shape({
     .nullable()
     .test(
       'apellidos-required',
-      'Apellidos es obligatorio cuando la situación tributaria es no contribuyente o no domiciliado',
+      'Apellidos es obligatorio cuando la situación tributaria es NO CONTRIBUYENTE o NO DOMICILIADO',
       function (value) {
         const { situacionTributaria } = this.parent;
         return situacionTributaria === 'CONTRIBUYENTE' || !!value;
@@ -68,7 +68,7 @@ export const facturaCreateValidationSchema = Yup.object().shape({
     .nullable()
     .test(
       'identificacion-required',
-      'Identificación es obligatoria cuando la situación tributaria es no contribuyente o no domiciliado',
+      'Identificación es obligatoria cuando la situación tributaria es NO CONTRIBUYENTE o NO DOMICILIADO',
       function (value) {
         const { situacionTributaria } = this.parent;
         return situacionTributaria === 'CONTRIBUYENTE' || !!value;
@@ -78,7 +78,27 @@ export const facturaCreateValidationSchema = Yup.object().shape({
     .nullable()
     .test(
       'tipoIdentificacion-required',
-      'Tipo de Identificación es obligatorio cuando la situación tributaria es no contribuyente o no domiciliado',
+      'Tipo de Identificación es obligatorio cuando la situación tributaria es NO CONTRIBUYENTE o NO DOMICILIADO',
+      function (value) {
+        const { situacionTributaria } = this.parent;
+        return situacionTributaria === 'CONTRIBUYENTE' || !!value;
+      }
+    ),
+  direccion: Yup.string()
+    .nullable()
+    .test(
+      'direccion-required',
+      'La dirección es obligatoria cuando la situación tributaria es NO CONTRIBUYENTE o NO DOMICILIADO',
+      function (value) {
+        const { situacionTributaria } = this.parent;
+        return situacionTributaria === 'CONTRIBUYENTE' || !!value;
+      }
+    ),
+  pais: Yup.string()
+    .nullable()
+    .test(
+      'pais-required',
+      'El país es obligatorio cuando la situación tributaria es NO CONTRIBUYENTE o NO DOMICILIADO',
       function (value) {
         const { situacionTributaria } = this.parent;
         return situacionTributaria === 'CONTRIBUYENTE' || !!value;

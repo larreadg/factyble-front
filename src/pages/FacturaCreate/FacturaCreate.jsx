@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@nextui-org/button'
 import { Divider } from '@nextui-org/divider'
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Card, CardBody, Textarea } from '@nextui-org/react'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Card, CardBody, Textarea, Autocomplete, AutocompleteItem } from '@nextui-org/react'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Input } from '@nextui-org/input'
 import { Formik, FieldArray } from 'formik'
-import { apiUrl, condicionesVenta, situacionesTributarias, tasas, tiposCreditos, tiposCreditosPeriodicidad, tiposIdentificacionesNoContribuyente, tiposIdentificacionesNoDomiciliado, toastStyle } from '../../config/constants'
+import { apiUrl, condicionesVenta, situacionesTributarias, tasas, tiposCreditos, tiposCreditosPeriodicidad, tiposIdentificacionesNoContribuyente, tiposIdentificacionesNoDomiciliado, toastStyle, paises } from '../../config/constants'
 import { calcularImpuesto, calcularPrecio, formatNumber } from '../../utils/facturacion'
 import { PlusIcon } from '../../icons/PlusIcon'
 import { MinusIcon } from '../../icons/MinusIcon'
@@ -48,22 +48,17 @@ function FacturaCreate() {
                 setFieldValue('razonSocial', razonSocial)
                 setFieldValue('tipoIdentificacion', 'RUC')
                 email !== null && setFieldValue('email', email)
-              } else if (situacionTributaria === 'NO_CONTRIBUYENTE') {
+              } else if (situacionTributaria === 'NO_CONTRIBUYENTE' || situacionTributaria === 'NO_DOMICILIADO') {
 
-                const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion, email } = data
-                setFieldValue('nombres', nombres)
-                setFieldValue('apellidos', apellidos)
-                setFieldValue('identificacion', documento)
-                setFieldValue('tipoIdentificacion', tipoIdentificacion)
+                const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion, email, pais, direccion } = data
+                nombres !== null && setFieldValue('nombres', nombres)
+                apellidos !== null && setFieldValue('apellidos', apellidos)
+                documento !== null && setFieldValue('identificacion', documento)
+                tipoIdentificacion !== null && setFieldValue('tipoIdentificacion', tipoIdentificacion)
+                pais !== null && setFieldValue('pais', pais)
+                direccion !== null && setFieldValue('direccion', direccion)
                 email !== null && setFieldValue('email', email)
 
-              } else {
-                const { nombres, apellidos, documento, tipo_identificacion: tipoIdentificacion, email } = data
-                setFieldValue('nombres', nombres)
-                setFieldValue('apellidos', apellidos)
-                setFieldValue('identificacion', documento)
-                setFieldValue('tipoIdentificacion', tipoIdentificacion)
-                email !== null && setFieldValue('email', email)
               }
               toast.success('Datos encontrados', { style: toastStyle })
 
@@ -134,9 +129,9 @@ function FacturaCreate() {
                 apellidos: '',
                 ruc: '',
                 razonSocial: '',
-                domicilio: '',
+                direccion: '',
                 email: '',
-                pais: '',
+                pais: 'PRY',
                 condicionVenta: 'CONTADO',
                 totalIva: 0,
                 total: 0,
@@ -153,7 +148,7 @@ function FacturaCreate() {
               validationSchema={facturaCreateValidationSchema}
               onSubmit={(values, { setSubmitting, resetForm }) => {
 
-                if (values.situacionTributaria === 'NO_CONTRIBUYENTE') {
+                if (values.situacionTributaria === 'NO_CONTRIBUYENTE' || values.situacionTributaria === 'NO_DOMICILIADO') {
                   values.razonSocial = `${values.apellidos}, ${values.nombres}`
                   values.ruc = values.identificacion
                 }
@@ -303,18 +298,18 @@ function FacturaCreate() {
                         </section>
                         <section>
                           <Input
-                            label='Domicilio'
+                            label='Dirección'
                             labelPlacement='outside'
                             type='text'
-                            name='domicilio'
+                            name='direccion'
                             variant='bordered'
-                            isInvalid={errors.domicilio && touched.domicilio}
-                            color={errors.domicilio && touched.domicilio ? 'danger' : ''}
+                            isInvalid={errors.direccion && touched.direccion}
+                            color={errors.direccion && touched.direccion ? 'danger' : ''}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            value={values.domicilio}
-                            errorMessage={errors.domicilio && touched.domicilio ? errors.domicilio : ''}
-                            placeholder='Domicilio...'
+                            value={values.direccion}
+                            errorMessage={errors.direccion && touched.direccion ? errors.direccion : ''}
+                            placeholder='Dirección...'
                           />
                         </section>
                         <section>
@@ -336,13 +331,13 @@ function FacturaCreate() {
                         </section>
                       </>
                     )}
-                    {values.situacionTributaria === 'NO_CONTRIBUYENTE' && (
+                    {['NO_DOMICILIADO', 'NO_CONTRIBUYENTE'].includes(values.situacionTributaria) && (
                       <>
                         <section className='flex flex-col sm:flex-row items-end gap-2'>
                           <Input
                             label='Buscar por Identificación'
                             labelPlacement='outside'
-                            type='number'
+                            type='text'
                             variant='bordered'
                             onChange={(e) => setSearch(e.target.value)}
                             value={search}
@@ -354,7 +349,7 @@ function FacturaCreate() {
                             type='button'
                             loading={searchLoading}
                             className='w-full sm:w-1/4'
-                            onClick={() => buscarRuc('NO_CONTRIBUYENTE', setFieldValue, setFieldTouched)}
+                            onClick={() => buscarRuc(values.situacionTributaria, setFieldValue, setFieldTouched)}
                             isLoading={searchLoading}>
                             Buscar
                           </Button>
@@ -368,7 +363,7 @@ function FacturaCreate() {
                           </Button>
                         </section>
                         <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <section className='col-span-1 md:col-span-1'>
+                          <section className='col-span-1 md:col-span-2'>
                             <Input
                               isRequired
                               label='Nombres'
@@ -385,7 +380,7 @@ function FacturaCreate() {
                               placeholder='Nombres...'
                             />
                           </section>
-                          <section className='col-span-1 md:col-span-1'>
+                          <section className='col-span-1 md:col-span-2'>
                             <Input
                               isRequired
                               label='Apellidos'
@@ -402,12 +397,12 @@ function FacturaCreate() {
                               placeholder='Apellidos...'
                             />
                           </section>
-                          <section className='col-span-1 md:col-span-1'>
+                          <section className='col-span-1 md:col-span-2'>
                             <Input
                               isRequired
                               label='Identificación'
                               labelPlacement='outside'
-                              type='number'
+                              type='text'
                               name='identificacion'
                               variant='bordered'
                               isInvalid={errors.identificacion && touched.identificacion}
@@ -419,178 +414,92 @@ function FacturaCreate() {
                               placeholder='Identificacion...'
                             />
                           </section>
-                          <section className='col-span-1 md:col-span-1'>
-                            <Select
+                          <section className='col-span-1 md:col-span-2'>
+                            {
+                              values.situacionTributaria === 'NO_DOMICILIADO' && (
+                                <>
+                                  <Select
+                                    isRequired
+                                    variant='bordered'
+                                    labelPlacement='outside'
+                                    label='Tipo Identificación'
+                                    size='md'
+                                    value={values.tipoIdentificacion}
+                                    selectedKeys={values.tipoIdentificacion !== '' ? [values.tipoIdentificacion] : ['IDENTIFICACION_TRIBUTARIA']}
+                                    onChange={(e) => setFieldValue('tipoIdentificacion', e.target.value)}
+                                    onBlur={handleBlur}
+                                  >
+                                    {tiposIdentificacionesNoDomiciliado.map((el) => (
+                                      <SelectItem key={el.key}>
+                                        {el.label}
+                                      </SelectItem>
+                                    ))}
+                                  </Select>
+                                </>
+                              )
+                            }
+                            {
+                              values.situacionTributaria === 'NO_CONTRIBUYENTE' && (
+                                <>
+                                  <Select
+                                    isRequired
+                                    variant='bordered'
+                                    labelPlacement='outside'
+                                    label='Tipo Identificación'
+                                    size='md'
+                                    value={values.tipoIdentificacion}
+                                    defaultSelectedKeys={['CEDULA']}
+                                    onChange={(e) => setFieldValue('tipoIdentificacion', e.target.value)}
+                                    onBlur={handleBlur}
+                                  >
+                                    {tiposIdentificacionesNoContribuyente.map((el) => (
+                                      <SelectItem key={el.key}>
+                                        {el.label}
+                                      </SelectItem>
+                                    ))}
+                                  </Select>
+                                </>
+                              )
+                            }
+                          </section>
+                          <section className='col-span-1 md:col-span-2'>
+                            <Autocomplete
+                              name='pais' 
                               isRequired
                               variant='bordered'
                               labelPlacement='outside'
-                              label='Tipo Identificación'
+                              label='País'
                               size='md'
-                              value={values.tipoIdentificacion}
-                              defaultSelectedKeys={['CEDULA']}
-                              onChange={(e) => setFieldValue('tipoIdentificacion', e.target.value)}
+                              selectedKey={values.pais}
+                              defaultItems={paises}
+                              onSelectionChange={(e) => setFieldValue('pais', e)}
                               onBlur={handleBlur}
+                              isClearable={false}
                             >
-                              {tiposIdentificacionesNoContribuyente.map((el) => (
-                                <SelectItem key={el.key}>
-                                  {el.label}
-                                </SelectItem>
-                              ))}
-                            </Select>
+                              {(item) => <AutocompleteItem key={item.code}>{item.name}</AutocompleteItem>}
+                            </Autocomplete>
                           </section>
                         </section>
                         <section>
                           <Input
-                            label='Domicilio'
+                            isRequired
+                            label='Dirección'
                             labelPlacement='outside'
                             type='text'
-                            name='domicilio'
+                            name='direccion'
                             variant='bordered'
-                            isInvalid={errors.domicilio && touched.domicilio}
-                            color={errors.domicilio && touched.domicilio ? 'danger' : ''}
+                            isInvalid={errors.direccion && touched.direccion}
+                            color={errors.direccion && touched.direccion ? 'danger' : ''}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            value={values.domicilio}
-                            errorMessage={errors.domicilio && touched.domicilio ? errors.domicilio : ''}
-                            placeholder='Domicilio...'
+                            value={values.direccion}
+                            errorMessage={errors.direccion && touched.direccion ? errors.direccion : ''}
+                            placeholder='Dirección...'
                           />
                         </section>
                         <section>
                           <Input
                             isRequired
-                            label='Email'
-                            labelPlacement='outside'
-                            type='email'
-                            name='email'
-                            variant='bordered'
-                            isInvalid={errors.email && touched.email}
-                            color={errors.email && touched.email ? 'danger' : ''}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            value={values.email}
-                            errorMessage={errors.email && touched.email ? errors.email : ''}
-                            placeholder='Email...'
-                          />
-                        </section>
-                      </>
-                    )}
-                    {values.situacionTributaria === 'NO_DOMICILIADO' && (
-                      <>
-                        <section className='flex flex-col sm:flex-row items-end gap-2'>
-                          <Input
-                            label='Buscar por Identificación'
-                            labelPlacement='outside'
-                            type='number'
-                            variant='bordered'
-                            onChange={(e) => setSearch(e.target.value)}
-                            value={search}
-                            placeholder='Escriba el nro. de identificación...'
-                          />
-                          <Button
-                            color='primary'
-                            disabled={searchLoading}
-                            type='button'
-                            loading={searchLoading}
-                            className='w-full sm:w-1/4'
-                            onClick={() => buscarRuc('NO_DOMICILIADO', setFieldValue, setFieldTouched)}
-                            isLoading={searchLoading}>
-                            Buscar
-                          </Button>
-                          <Button
-                            color='default'
-                            type='button'
-                            className='w-full sm:w-1/4'
-                            onClick={() => { clearSearchFields(setFieldValue, setFieldTouched, true) }}
-                          >
-                            Limpiar
-                          </Button>
-                        </section>
-                        <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <section className='col-span-1 md:col-span-1'>
-                            <Input
-                              label='Nombres'
-                              labelPlacement='outside'
-                              type='text'
-                              name='nombres'
-                              variant='bordered'
-                              isInvalid={errors.nombres && touched.nombres}
-                              color={errors.nombres && touched.nombres ? 'danger' : ''}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              value={values.nombres}
-                              errorMessage={errors.nombres && touched.nombres ? errors.nombres : ''}
-                              placeholder='Nombres...'
-                            />
-                          </section>
-                          <section className='col-span-1 md:col-span-1'>
-                            <Input
-                              label='Apellidos'
-                              labelPlacement='outside'
-                              type='text'
-                              name='apellidos'
-                              variant='bordered'
-                              isInvalid={errors.apellidos && touched.apellidos}
-                              color={errors.apellidos && touched.apellidos ? 'danger' : ''}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              value={values.apellidos}
-                              errorMessage={errors.apellidos && touched.apellidos ? errors.apellidos : ''}
-                              placeholder='Apellidos...'
-                            />
-                          </section>
-                          <section className='col-span-1 md:col-span-1'>
-                            <Input
-                              label='Identificación'
-                              labelPlacement='outside'
-                              type='number'
-                              name='identificacion'
-                              variant='bordered'
-                              isInvalid={errors.identificacion && touched.identificacion}
-                              color={errors.identificacion && touched.identificacion ? 'danger' : ''}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              value={values.identificacion}
-                              errorMessage={errors.identificacion && touched.identificacion ? errors.identificacion : ''}
-                              placeholder='Identificacion...'
-                            />
-                          </section>
-                          <section className='col-span-1 md:col-span-1'>
-                            <Select
-                              variant='bordered'
-                              labelPlacement='outside'
-                              label='Tipo Identificación'
-                              size='md'
-                              value={values.tipoIdentificacion}
-                              defaultSelectedKeys={['CEDULA']}
-                              onChange={(e) => setFieldValue('tipoIdentificacion', e.target.value)}
-                              onBlur={handleBlur}
-                            >
-                              {tiposIdentificacionesNoDomiciliado.map((el) => (
-                                <SelectItem key={el.key}>
-                                  {el.label}
-                                </SelectItem>
-                              ))}
-                            </Select>
-                          </section>
-                        </section>
-                        <section>
-                          <Input
-                            label='Domicilio'
-                            labelPlacement='outside'
-                            type='text'
-                            name='domicilio'
-                            variant='bordered'
-                            isInvalid={errors.domicilio && touched.domicilio}
-                            color={errors.domicilio && touched.domicilio ? 'danger' : ''}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            value={values.domicilio}
-                            errorMessage={errors.domicilio && touched.domicilio ? errors.domicilio : ''}
-                            placeholder='Domicilio...'
-                          />
-                        </section>
-                        <section>
-                          <Input
                             label='Email'
                             labelPlacement='outside'
                             type='email'
