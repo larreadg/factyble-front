@@ -4,6 +4,7 @@ import emitirFacturaImg from '../assets/inicio_emitir_factura.svg'
 import facturasEmitidasImg from '../assets/inicio_facturas_emitidas.svg'
 import emitirNCImg from '../assets/inicio_emitir_nc.svg'
 import ncEmitidasImg from '../assets/inicio_nc_emitidas.svg'
+import recibosEmitidosImg from '../assets/inicio_recibos_emitidos.svg'
 
 function Inicio() {
   return (
@@ -45,6 +46,16 @@ function Inicio() {
               <CardBody className='flex flex-col items-center justify-center gap-4 '>
                 <img src={ncEmitidasImg} alt='Notas de crédito emitidas' className='w-24 h-24' />
                 <h2 className='text-md text-gray-900 font-poppins'>Notas de crédito emitidas</h2>
+              </CardBody>
+            </Card>
+          </Link>
+        </section>
+        <section>
+          <Link to="/recibo">
+            <Card className='min-h-[20vh] border border-2 border-default-300  hover:border hover:border-2 hover:border-primary cursor-pointer py-2'>
+              <CardBody className='flex flex-col items-center justify-center gap-4 '>
+                <img src={recibosEmitidosImg} alt='Recibos emitidos' className='w-24 h-24' />
+                <h2 className='text-md text-gray-900 font-poppins'>Recibos emitidos</h2>
               </CardBody>
             </Card>
           </Link>
