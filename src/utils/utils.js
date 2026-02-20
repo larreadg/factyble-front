@@ -39,4 +39,16 @@ export const sidebarItems = [
     icon: null,
     route: '/nota-credito'
   },
+  {
+    key: 'op-6',
+    title: 'Recibos emitidos',
+    icon: null,
+    route: '/recibo'
+  },
+  {
+    key: 'op-7',
+    title: 'Emitir recibo',
+    icon: null,
+    route: '/nota-credito'
+  },
 ]

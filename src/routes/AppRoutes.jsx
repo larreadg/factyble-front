@@ -7,6 +7,7 @@ import FacturaCreate from '../pages/FacturaCreate/FacturaCreate'
 import NotaCreditoCreate from '../pages/NotaCreditoCreate/NotaCreditoCreate'
 import FacturaList from '../pages/FacturaList/FacturaList'
 import NotaCreditoList from '../pages/NotaCreditoList/NotaCreditoList'
+import ReciboList from '../pages/ReciboList/ReciboList'
 
 function AppRoutes() {
   return (
@@ -22,6 +23,9 @@ function AppRoutes() {
               <Route path="nota-credito">
                 <Route index element={<NotaCreditoList />} />
                 <Route path="add" element={<NotaCreditoCreate />} />
+              </Route>
+              <Route path="recibo">
+                <Route index element={<ReciboList />} />
               </Route>
             </Route>
         </Route>
