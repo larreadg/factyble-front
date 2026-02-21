@@ -62,7 +62,7 @@ function Inicio() {
           </Link>
         </section>
         <section>
-          <Link to="/nota-recibo">
+          <Link to="/recibo">
             <Card className='min-h-[20vh] border border-2 border-default-300  hover:border hover:border-2 hover:border-primary cursor-pointer py-2'>
               <CardBody className='flex flex-col items-center justify-center gap-4 '>
                 <img src={recEmitidosImg} alt='Recibos emitidos' className='w-24 h-24' />

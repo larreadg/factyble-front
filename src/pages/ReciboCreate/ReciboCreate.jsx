@@ -9,6 +9,7 @@ import { apiUrl, situacionesTributarias, toastStyle } from '../../config/constan
 import axiosInstance from '../../services/axiosInstance'
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import toast, { Toaster } from 'react-hot-toast'
+import Loader from '../../components/Loader'
 
 import { Input } from '@nextui-org/input'
 import { Button } from '@nextui-org/react';
@@ -32,11 +33,6 @@ function ReciboCreate() {
     const [chequeBancoKey, setChequeBancoKey] = useState("");
     const [chequeBancoLabel, setChequeBancoLabel] = useState("");
 
-
-
-
-
-
     const breadcrumbs = [
         { label: 'Inicio', link: '/' },
         { label: 'Emitir Recibo', link: null }
@@ -49,8 +45,6 @@ function ReciboCreate() {
         );
         return Number(totalPagoEfectivo || 0) + sumaCheques;
     }
-
-
 
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -151,6 +145,7 @@ function ReciboCreate() {
                                 handleBlur,
                                 handleSubmit,
                                 setFieldValue,
+                                isSubmitting,
                                 setFieldTouched,
                                 isValid
                             }) => (
@@ -631,6 +626,7 @@ function ReciboCreate() {
                                         </Button>
 
                                     </section>
+                                    {isSubmitting && <Loader />}
 
                                 </form>
                             )}

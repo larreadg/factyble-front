@@ -26,6 +26,7 @@ function AppRoutes() {
                 <Route path="add" element={<NotaCreditoCreate />} />
               </Route>
               <Route path="recibo">
+              <Route index element={<ReciboList />} />
                 <Route path="add" element={<ReciboCreate />} />
               </Route>
             </Route>

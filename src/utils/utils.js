@@ -43,7 +43,7 @@ export const sidebarItems = [
     key: 'op-6',
     title: 'Recibos emitidos',
     icon: null,
-    route: '/nota-recibo'
+    route: '/recibo'
   },
   {
     key: 'op-7',
