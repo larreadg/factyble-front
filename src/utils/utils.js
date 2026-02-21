@@ -27,28 +27,28 @@ export const sidebarItems = [
     icon: null,
     route: '/nota-credito/add'
   },
-  {
+    {
     key: 'op-4',
+    title: 'Emitir recibo',
+    icon: null,
+    route: '/recibo/add'
+  },
+  {
+    key: 'op-5',
     title: 'Facturas emitidas',
     icon: null,
     route: '/factura'
   },
   {
-    key: 'op-5',
+    key: 'op-6',
     title: 'Notas de crédito emitidas',
     icon: null,
     route: '/nota-credito'
   },
   {
-    key: 'op-6',
+    key: 'op-7',
     title: 'Recibos emitidos',
     icon: null,
     route: '/recibo'
-  },
-  {
-    key: 'op-7',
-    title: 'Emitir recibo',
-    icon: null,
-    route: '/recibo/add'
   },
 ]

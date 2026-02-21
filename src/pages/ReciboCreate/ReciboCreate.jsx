@@ -10,14 +10,15 @@ import axiosInstance from '../../services/axiosInstance'
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import toast, { Toaster } from 'react-hot-toast'
 import Loader from '../../components/Loader'
-
+import { formatNumber } from '../../utils/facturacion'
 import { Input } from '@nextui-org/input'
 import { Button } from '@nextui-org/react';
 import { buscarRuc } from '../../formValidations/buscarRuc'
 import { clearSearchFields } from '../../formValidations/buscarRuc'
-
 import FacturaCreateSelectCajaEstablecimiento from '../FacturaCreate/FacturaCreateSelectCajaEstablecimiento'
 import { ReciboCreateValidationSchema } from '../../formValidations/ReciboCreate'
+import { CheckSimpleIcon } from '../../icons/CheckSimpleIcon'
+import { XMarkIcon } from '../../icons/XMarkIcon'
 
 
 function ReciboCreate() {
@@ -27,10 +28,10 @@ function ReciboCreate() {
     const [searchLoading, setSearchLoading] = useState(false)
     const [facturaInput, setFactura] = useState("");
     const [facturaMonto, setFacturaMonto] = useState("");
-    const [chequeBanco, setChequeBanco] = useState("");
+    const [, setChequeBanco] = useState("");
     const [chequeNumero, setChequeNumero] = useState("");
     const [chequeMonto, setChequeMonto] = useState("");
-    const [chequeBancoKey, setChequeBancoKey] = useState("");
+    const [, setChequeBancoKey] = useState("");
     const [chequeBancoLabel, setChequeBancoLabel] = useState("");
 
     const breadcrumbs = [
@@ -112,13 +113,16 @@ function ReciboCreate() {
                             }}
                             validationSchema={ReciboCreateValidationSchema}
                             onSubmit={(values, { setSubmitting, resetForm }) => {
-                                Number(values.totalEfectivo)
-                                console.log("Datos enviados:", values);
-                                if (values.situacionTributaria === 'NO_CONTRIBUYENTE' || values.situacionTributaria === 'NO_DOMICILIADO') {
-                                    values.razonSocial = `${values.apellidos}, ${values.nombres}`
-                                    values.ruc = values.identificacion
+                                const payload = {
+                                    ...values,
+                                    totalEfectivo: Number(values.totalEfectivo) || 0,
                                 }
-                                axiosInstance.post(`${apiUrl}/recibo`, { ...values })
+                                console.log("Datos enviados:", payload);
+                                if (values.situacionTributaria === 'NO_CONTRIBUYENTE' || values.situacionTributaria === 'NO_DOMICILIADO') {
+                                    payload.razonSocial = `${values.apellidos}, ${values.nombres}`
+                                    payload.ruc = values.identificacion
+                                }
+                                axiosInstance.post(`${apiUrl}/recibo`, payload)
                                     .then(() => {
                                         toast.success('Recibo emitido', { style: toastStyle, duration: 5000 })
                                         setSubmitting(false)
@@ -126,13 +130,21 @@ function ReciboCreate() {
                                         setSearch('')
                                     })
                                     .catch((error) => {
-                                        let errorMsg = error.message || `Error al crear Recibo`
-                                        if (error && error.response) {
-                                            const { data: { message } } = error.response
-                                            errorMsg = message
-                                        }
-                                        console.log(errorMsg);
-                                        toast.error(errorMsg, { style: toastStyle, duration: 5000 })
+                                        const responseData = error?.response?.data
+                                        const validationMessages = Array.isArray(responseData?.data)
+                                            ? responseData.data
+                                                .map((item) => item?.msg)
+                                                .filter(Boolean)
+                                            : []
+
+                                        const errorMessages = validationMessages.length > 0
+                                            ? validationMessages
+                                            : [responseData?.message || error?.message || 'Error al crear Recibo']
+
+                                        console.log(errorMessages)
+                                        errorMessages.forEach((message) => {
+                                            toast.error(message, { style: toastStyle, duration: 5000 })
+                                        })
                                         setSubmitting(false)
                                     })
                             }}
@@ -185,6 +197,7 @@ function ReciboCreate() {
                                             />
 
                                             <Input
+                                                type='number'
                                                 variant="bordered"
                                                 placeholder="Monto"
                                                 value={facturaMonto}
@@ -192,7 +205,7 @@ function ReciboCreate() {
                                             />
                                             <Button
                                                 radius="full"
-                                                className="w-12 h-12 bg-green-400 hover:bg-green-500 text-white"
+                                                className="w-8 h-10 bg-green-400 hover:bg-green-500 text-white"
                                                 onClick={() => {
                                                     const nuevaFactura = {
                                                         numeroFactura: facturaInput,
@@ -205,30 +218,37 @@ function ReciboCreate() {
                                                     setFacturaMonto("");
 
                                                 }}
+                                                isIconOnly 
                                             >
-                                                ✓
+                                                <CheckSimpleIcon className='size-4' />
                                             </Button>
 
                                         </section>
-                                        <section className="mt-4 flex flex-col gap-2">
+                                        <section>
+                                            <p className='text-xs text-default-500'>
+                                                Complete numero y monto, luego presione el boton de check para agregar la factura a la lista.
+                                            </p>
+                                        </section>
+                                        <section className="flex flex-col gap-2">
                                             {values.facturas.map((factura, index) => (
                                                 <div key={index} className="flex items-center gap-2">
                                                     <Input
                                                         variant="bordered"
-                                                        value={`${factura.numeroFactura} - ${factura.montoAplicado}`}
+                                                        value={`FACTURA: ${factura.numeroFactura} - MONTO: ${formatNumber(factura.montoAplicado)} GS.`}
                                                         readOnly
                                                         className="flex-1"
                                                         isDisabled
                                                     />
                                                     <Button
                                                         radius="full"
-                                                        className="w-12 h-12 bg-red-400 hover:bg-red-500 text-white"
+                                                        className="w-8 h-10 bg-red-400 hover:bg-red-500 text-white"
                                                         onClick={() => {
                                                             const nuevasFacturas = values.facturas.filter((_, i) => i !== index);
                                                             setFieldValue("facturas", nuevasFacturas);
                                                         }}
+                                                        isIconOnly
                                                     >
-                                                        ✕
+                                                        <XMarkIcon className='size-4' />
                                                     </Button>
                                                 </div>
                                             ))}
@@ -450,7 +470,7 @@ function ReciboCreate() {
                                             <Divider className="mt-4" />
                                         </section>
                                         <section style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                                            <label htmlFor="totalPagoEfectivo">Total pago en efectivo</label>
+                                            <label htmlFor="totalPagoEfectivo" style={{ whiteSpace: "nowrap", flexShrink: 0 }}>Total pago en efectivo</label>
                                             <Field
                                                 as={Input}
                                                 isRequired
@@ -525,11 +545,12 @@ function ReciboCreate() {
 
                                             <Input
                                                 variant="bordered"
-                                                placeholder="Nro de cheque"
+                                                placeholder="Nro. de cheque"
                                                 value={chequeNumero}
                                                 onChange={(e) => setChequeNumero(e.target.value)}
                                             />
                                             <Input
+                                                type='number'
                                                 variant="bordered"
                                                 placeholder="Total cheque"
                                                 value={chequeMonto}
@@ -537,7 +558,7 @@ function ReciboCreate() {
                                             />
                                             <Button
                                                 radius="full"
-                                                className="w-12 h-12 bg-green-400 hover:bg-green-500 text-white"
+                                                className="w-8 h-10 bg-green-400 hover:bg-green-500 text-white"
                                                 onClick={() => {
                                                     const nuevoCheque = {
                                                         banco: chequeBancoLabel,
@@ -552,30 +573,36 @@ function ReciboCreate() {
                                                     setChequeMonto("");
 
                                                 }}
-
+                                                isIconOnly
                                             >
-                                                ✓
+                                                <CheckSimpleIcon className='size-4' />
                                             </Button>
                                         </section>
 
+                                        <section>
+                                            <p className='text-xs text-default-500'>
+                                                Complete banco, numero y total, luego presione el boton de check para agregar el cheque a la lista.
+                                            </p>
+                                        </section>
                                         {values.cheques.map((cheque, index) => (
                                             <section key={index} className="flex items-center gap-2">
                                                 <Input
                                                     variant="bordered"
-                                                    value={`${cheque.banco} - ${cheque.numero} - ${cheque.monto}`}
+                                                    value={`BANCO: ${cheque.banco} - NRO: ${cheque.numero} - MONTO: ${formatNumber(cheque.monto)} GS.`}
                                                     readOnly
                                                     className="flex-1"
                                                     isDisabled
                                                 />
                                                 <Button
                                                     radius="full"
-                                                    className="w-12 h-12 bg-red-400 hover:bg-red-500 text-white"
+                                                    className="w-8 h-10 bg-red-400 hover:bg-red-500 text-white"
                                                     onClick={() => {
                                                         const nuevosCheques = values.cheques.filter((_, i) => i !== index);
                                                         setFieldValue("cheques", nuevosCheques);
                                                     }}
+                                                    isIconOnly
                                                 >
-                                                    ✕
+                                                    <XMarkIcon className='size-4' />
                                                 </Button>
                                             </section>
                                         ))}
@@ -585,13 +612,12 @@ function ReciboCreate() {
                                             <Divider className="mt-4" />
                                         </section>
                                         <section style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                                            <label htmlFor="totalGeneral">Total General</label>
+                                            <label htmlFor="totalGeneral" style={{ whiteSpace: "nowrap", flexShrink: 0 }}>Total General</label>
                                             <Input
-                                                type="number"
                                                 id="totalGeneral"
                                                 name="totalGeneral"
                                                 variant="bordered"
-                                                value={calcularTotal(values.totalEfectivo, values.cheques)}
+                                                value={formatNumber(calcularTotal(values.totalEfectivo, values.cheques)) + ' GS.'}
                                                 isDisabled
                                             />
 

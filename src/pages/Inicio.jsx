@@ -32,6 +32,16 @@ function Inicio() {
           </Link>
         </section>
         <section>
+          <Link to="/recibo/add">
+            <Card className='min-h-[20vh] border border-2 border-default-300  hover:border hover:border-2 hover:border-primary cursor-pointer py-2'>
+              <CardBody className='flex flex-col items-center justify-center gap-4 '>
+                <img src={emitirREcibosImg} alt='Emitir recibo' className='w-24 h-24' />
+                <h2 className='text-md text-gray-900 font-poppins'>Emitir recibo</h2>
+              </CardBody>
+            </Card>
+          </Link>
+        </section>
+        <section>
           <Link to="/factura">
             <Card className='min-h-[20vh] border border-2 border-default-300  hover:border hover:border-2 hover:border-primary cursor-pointer py-2'>
               <CardBody className='flex flex-col items-center justify-center gap-4 '>
@@ -47,16 +57,6 @@ function Inicio() {
               <CardBody className='flex flex-col items-center justify-center gap-4 '>
                 <img src={ncEmitidasImg} alt='Notas de crédito emitidas' className='w-24 h-24' />
                 <h2 className='text-md text-gray-900 font-poppins'>Notas de crédito emitidas</h2>
-              </CardBody>
-            </Card>
-          </Link>
-        </section>
-        <section>
-          <Link to="/recibo/add">
-            <Card className='min-h-[20vh] border border-2 border-default-300  hover:border hover:border-2 hover:border-primary cursor-pointer py-2'>
-              <CardBody className='flex flex-col items-center justify-center gap-4 '>
-                <img src={emitirREcibosImg} alt='Emitir recibo' className='w-24 h-24' />
-                <h2 className='text-md text-gray-900 font-poppins'>Emitir recibo</h2>
               </CardBody>
             </Card>
           </Link>

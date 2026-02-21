@@ -152,23 +152,23 @@ function FacturaCreate() {
                   values.razonSocial = `${values.apellidos}, ${values.nombres}`
                   values.ruc = values.identificacion
                 }
-                return
-                // axiosInstance.post(`${apiUrl}/factura`, { ...values })
-                //   .then(() => {
-                //     toast.success('Factura emitida', { style: toastStyle, duration: 5000 })
-                //     setSubmitting(false)
-                //     resetForm()
-                //     setSearch('')
-                //   })
-                //   .catch((error) => {
-                //     let errorMsg = error.message || `Error al crear factura`
-                //     if(error && error.response){
-                //       const { data: { message } } = error.response
-                //       errorMsg = message
-                //     }
-                //     toast.error(errorMsg, { style: toastStyle, duration: 5000 })
-                //     setSubmitting(false)
-                //   })
+                
+                axiosInstance.post(`${apiUrl}/factura`, { ...values })
+                  .then(() => {
+                    toast.success('Factura emitida', { style: toastStyle, duration: 5000 })
+                    setSubmitting(false)
+                    resetForm()
+                    setSearch('')
+                  })
+                  .catch((error) => {
+                    let errorMsg = error.message || `Error al crear factura`
+                    if(error && error.response){
+                      const { data: { message } } = error.response
+                      errorMsg = message
+                    }
+                    toast.error(errorMsg, { style: toastStyle, duration: 5000 })
+                    setSubmitting(false)
+                  })
               }}
             >
               {({
