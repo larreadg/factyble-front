@@ -5,7 +5,7 @@ import { Formik, Field } from 'formik'
 import { Divider } from '@nextui-org/divider'
 import { jwtDecode } from 'jwt-decode'
 import { Select, SelectItem } from '@nextui-org/select'
-import { apiUrl, situacionesTributarias, tiposIdentificacionesNoContribuyente, tiposIdentificacionesNoDomiciliado, toastStyle } from '../../config/constants'
+import { apiUrl, situacionesTributarias, toastStyle } from '../../config/constants'
 import axiosInstance from '../../services/axiosInstance'
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import toast, { Toaster } from 'react-hot-toast'

@@ -8,6 +8,7 @@ import NotaCreditoCreate from '../pages/NotaCreditoCreate/NotaCreditoCreate'
 import FacturaList from '../pages/FacturaList/FacturaList'
 import NotaCreditoList from '../pages/NotaCreditoList/NotaCreditoList'
 import ReciboCreate from '../pages/ReciboCreate/ReciboCreate'
+import ReciboList from '../pages/ReciboList/ReciboList'
 
 function AppRoutes() {
   return (
