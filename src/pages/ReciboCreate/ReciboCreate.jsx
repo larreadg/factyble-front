@@ -33,6 +33,11 @@ function ReciboCreate() {
     const [chequeMonto, setChequeMonto] = useState("");
     const [, setChequeBancoKey] = useState("");
     const [chequeBancoLabel, setChequeBancoLabel] = useState("");
+    const [tipoPagoKey, setTipoPagoKey] = useState("");
+    const [tipoPagoLabel, setTipoPagoLabel] = useState("");
+    const [facturaTipoKey, setFacturaTipoKey] = useState("");
+    const [facturaTipoLabel, setFacturaTipoLabel] = useState("");
+
 
     const breadcrumbs = [
         { label: 'Inicio', link: '/' },
@@ -185,13 +190,32 @@ function ReciboCreate() {
                                                 onBlur={handleBlur} />
                                         </section>
                                         <section>
-                                            <h1 className='font-bold text-secondary'>FACTURAS</h1>
+                                            <h1 className='font-bold text-secondary'>FACTURAS / NOTAS DE CRÉDITO</h1>
                                             <Divider className="mt-4" />
                                         </section>
                                         <section className="flex items-center gap-2 mt-4">
+                                            <Autocomplete
+                                                placeholder="Introduzca el tipo de pago"
+                                                variant="bordered"
+                                                defaultItems={[
+                                                    { key: "1", label: "Factura" },
+                                                    { key: "2", label: "Nota de crédito" },
+                                                ]}
+                                                onSelectionChange={(key) => {
+                                                    const selected = key ? key : "";
+                                                    setFacturaTipoKey(selected);
+                                                }}
+
+                                                onInputChange={(value) => {
+                                                    setFacturaTipoKey("");
+                                                    setFacturaTipoLabel(value);
+                                                }}
+                                            >
+                                                {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
+                                            </Autocomplete>
                                             <Input
                                                 variant="bordered"
-                                                placeholder="Ingrese número de factura"
+                                                placeholder={facturaTipoLabel === "Factura" ? "Ingrese número de factura" : "Ingrese número de nota de credito"}
                                                 value={facturaInput}
                                                 onChange={(e) => setFactura(e.target.value)}
                                             />
@@ -210,15 +234,17 @@ function ReciboCreate() {
                                                     const nuevaFactura = {
                                                         numeroFactura: facturaInput,
                                                         montoAplicado: Number(facturaMonto),
+                                                        tipo: facturaTipoLabel.toUpperCase(),
                                                     };
-                                                    if (nuevaFactura.numeroFactura && nuevaFactura.montoAplicado > 0) {
+                                                    if (nuevaFactura.numeroFactura && nuevaFactura.montoAplicado > 0 && nuevaFactura.tipo) {
                                                         setFieldValue("facturas", [...values.facturas, nuevaFactura]);
                                                     }
                                                     setFactura("");
                                                     setFacturaMonto("");
-
+                                                    setFacturaTipoKey("");
+                                                    setFacturaTipoLabel("");
                                                 }}
-                                                isIconOnly 
+                                                isIconOnly
                                             >
                                                 <CheckSimpleIcon className='size-4' />
                                             </Button>
@@ -226,7 +252,7 @@ function ReciboCreate() {
                                         </section>
                                         <section>
                                             <p className='text-xs text-default-500'>
-                                                Complete numero y monto, luego presione el boton de check para agregar la factura a la lista.
+                                                Complete tipo de factura, numero y monto, luego presione el boton de check para agregar la factura a la lista.
                                             </p>
                                         </section>
                                         <section className="flex flex-col gap-2">
@@ -234,7 +260,7 @@ function ReciboCreate() {
                                                 <div key={index} className="flex items-center gap-2">
                                                     <Input
                                                         variant="bordered"
-                                                        value={`FACTURA: ${factura.numeroFactura} - MONTO: ${formatNumber(factura.montoAplicado)} GS.`}
+                                                        value={` TIPO: ${factura.tipo}- FACTURA: ${factura.numeroFactura} - MONTO: ${formatNumber(factura.montoAplicado)} GS. `}
                                                         readOnly
                                                         className="flex-1"
                                                         isDisabled
@@ -482,7 +508,25 @@ function ReciboCreate() {
 
                                         </section>
                                         <section className="flex items-center gap-2 mt-4">
-                                            <label htmlFor="Cheque">Cheque</label>
+                                            <Autocomplete
+                                                placeholder="Introduzca el tipo de pago"
+                                                variant="bordered"
+                                                defaultItems={[
+                                                    { key: "1", label: "Cheque" },
+                                                    { key: "2", label: "Transferencia" },
+                                                ]}
+                                                onSelectionChange={(key) => {
+                                                    const selected = key ? key : "";
+                                                    setTipoPagoKey(selected);
+                                                }}
+
+                                                onInputChange={(value) => {
+                                                    setTipoPagoKey("");
+                                                    setTipoPagoLabel(value);
+                                                }}
+                                            >
+                                                {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
+                                            </Autocomplete>
                                             <Autocomplete
                                                 placeholder="Seleccione o escriba un banco"
                                                 variant="bordered"
@@ -527,7 +571,7 @@ function ReciboCreate() {
                                                     { key: "38", label: "Cooperativa Mburicao Ltda." },
                                                     { key: "39", label: "Cooperativa de las Fuerzas Armadas de la Nación Ltda." }
                                                 ]}
-                                                                                 
+
                                                 onSelectionChange={(key) => {
                                                     const selected = key ? key : "";
                                                     setChequeBanco(selected);
@@ -545,14 +589,14 @@ function ReciboCreate() {
 
                                             <Input
                                                 variant="bordered"
-                                                placeholder="Nro. de cheque"
+                                                placeholder={tipoPagoLabel === "Cheque" ? "Nro de cheque" : "Nro de transferencia"}
                                                 value={chequeNumero}
                                                 onChange={(e) => setChequeNumero(e.target.value)}
                                             />
                                             <Input
                                                 type='number'
                                                 variant="bordered"
-                                                placeholder="Total cheque"
+                                                placeholder={tipoPagoLabel === "Cheque" ? "Total cheque" : "Monto"}
                                                 value={chequeMonto}
                                                 onChange={(e) => setChequeMonto(e.target.value)}
                                             />
@@ -564,14 +608,16 @@ function ReciboCreate() {
                                                         banco: chequeBancoLabel,
                                                         numero: chequeNumero,
                                                         monto: Number(chequeMonto),
+                                                        tipo: tipoPagoLabel.toUpperCase(),
                                                     };
-                                                    if (nuevoCheque.banco && nuevoCheque.numero && nuevoCheque.monto > 0) {
+                                                    if (nuevoCheque.banco && nuevoCheque.numero && nuevoCheque.monto > 0 && nuevoCheque.tipo) {
                                                         setFieldValue("cheques", [...values.cheques, nuevoCheque]);
                                                     }
                                                     setChequeBanco("");
                                                     setChequeNumero("");
                                                     setChequeMonto("");
-
+                                                    setTipoPagoKey("");
+                                                    setTipoPagoLabel("");
                                                 }}
                                                 isIconOnly
                                             >
@@ -581,14 +627,14 @@ function ReciboCreate() {
 
                                         <section>
                                             <p className='text-xs text-default-500'>
-                                                Complete banco, numero y total, luego presione el boton de check para agregar el cheque a la lista.
+                                                Complete tipo de pago, banco, numero y total, luego presione el boton de check para agregar el cheque a la lista.
                                             </p>
                                         </section>
                                         {values.cheques.map((cheque, index) => (
                                             <section key={index} className="flex items-center gap-2">
                                                 <Input
                                                     variant="bordered"
-                                                    value={`BANCO: ${cheque.banco} - NRO: ${cheque.numero} - MONTO: ${formatNumber(cheque.monto)} GS.`}
+                                                    value={` TIPO: ${cheque.tipo} - BANCO: ${cheque.banco} - NRO: ${cheque.numero} - MONTO: ${formatNumber(cheque.monto)} GS.`}
                                                     readOnly
                                                     className="flex-1"
                                                     isDisabled
