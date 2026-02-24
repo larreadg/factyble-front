@@ -195,7 +195,7 @@ function ReciboCreate() {
                                         </section>
                                         <section className="flex items-center gap-2 mt-4">
                                             <Autocomplete
-                                                placeholder="Introduzca el tipo de pago"
+                                                placeholder="Introduzca el tipo de factura"
                                                 variant="bordered"
                                                 defaultItems={[
                                                     { key: "1", label: "Factura" },
