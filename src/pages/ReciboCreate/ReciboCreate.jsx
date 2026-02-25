@@ -33,9 +33,9 @@ function ReciboCreate() {
     const [chequeMonto, setChequeMonto] = useState("");
     const [, setChequeBancoKey] = useState("");
     const [chequeBancoLabel, setChequeBancoLabel] = useState("");
-    const [tipoPagoKey, setTipoPagoKey] = useState("");
+    const [, setTipoPagoKey] = useState("");
     const [tipoPagoLabel, setTipoPagoLabel] = useState("");
-    const [facturaTipoKey, setFacturaTipoKey] = useState("");
+    const [, setFacturaTipoKey] = useState("");
     const [facturaTipoLabel, setFacturaTipoLabel] = useState("");
 
 
@@ -195,7 +195,7 @@ function ReciboCreate() {
                                         </section>
                                         <section className="flex items-center gap-2 mt-4">
                                             <Autocomplete
-                                                placeholder="Introduzca el tipo de factura"
+                                                placeholder="Introduzca el tipo de documento"
                                                 variant="bordered"
                                                 defaultItems={[
                                                     { key: "1", label: "Factura" },
@@ -260,7 +260,7 @@ function ReciboCreate() {
                                                 <div key={index} className="flex items-center gap-2">
                                                     <Input
                                                         variant="bordered"
-                                                        value={` TIPO: ${factura.tipo}- FACTURA: ${factura.numeroFactura} - MONTO: ${formatNumber(factura.montoAplicado)} GS. `}
+                                                        value={` TIPO: ${factura.tipo}- NRO.: ${factura.numeroFactura} - MONTO: ${formatNumber(factura.montoAplicado)} GS. `}
                                                         readOnly
                                                         className="flex-1"
                                                         isDisabled
